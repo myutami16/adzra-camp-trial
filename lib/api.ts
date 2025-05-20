@@ -107,37 +107,16 @@ export async function fetchProducts(
 		const result = await response.json();
 		console.log("Products API response:", result);
 
-		// Handle different API response structures
-		if (result.data && result.data.products) {
-			return result;
-		} else if (result.products) {
+		// Handle the specific API response structure
+		if (result.success && result.data) {
 			return {
 				data: {
-					products: result.products,
-					pagination: result.pagination || {},
-				},
-			};
-		} else if (Array.isArray(result)) {
-			return {
-				data: {
-					products: result,
+					products: [result.data], // Wrap the single product in an array
 					pagination: {
-						currentPage: 1,
-						totalPages: 1,
-						totalItems: result.length,
-						itemsPerPage: result.length,
-					},
-				},
-			};
-		} else if (result.data && Array.isArray(result.data)) {
-			return {
-				data: {
-					products: result.data,
-					pagination: {
-						currentPage: 1,
-						totalPages: 1,
-						totalItems: result.data.length,
-						itemsPerPage: result.data.length,
+						currentPage: result.currentPage || 1,
+						totalPages: result.totalPages || 1,
+						totalItems: result.totalCount || 1,
+						itemsPerPage: 1,
 					},
 				},
 			};

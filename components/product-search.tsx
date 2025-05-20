@@ -32,8 +32,8 @@ export default function ProductSearch({
 		params.delete("search");
 
 		if (query) {
-			params.set("search", ""); // Add the "search" parameter
-			params.set("q", query); // Add the search query under "q"
+			params.set("search", "");
+			params.set("q", query);
 		}
 
 		// Reset to page 1 when searching

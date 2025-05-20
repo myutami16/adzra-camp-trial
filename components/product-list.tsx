@@ -24,7 +24,7 @@ export default async function ProductList({
 	page = 1,
 	kategori,
 	sort = "newest",
-	query,
+	query, // Use query instead of q to avoid confusion
 	isForSale,
 	isForRent,
 }: ProductListProps) {
