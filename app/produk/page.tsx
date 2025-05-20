@@ -65,9 +65,9 @@ function ensureStringArray(input: any): string[] {
 
 						// For Symbol, use description or "[Symbol]"
 						if (typeof item === "symbol") {
+							const symbolString = String(item);
 							return (
-								String(item).replace("Symbol(", "").replace(")", "") ||
-								"[Symbol]"
+								symbolString.replace(/^Symbol\((.+)\)$/, "$1") || "[Symbol]"
 							);
 						}
 

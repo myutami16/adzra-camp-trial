@@ -25,6 +25,8 @@ export default function ProductFilters({
 	const currentCategory = searchParams.get("kategori") || "";
 	const currentSort = searchParams.get("sort") || "newest";
 	const currentQuery = searchParams.get("q") || "";
+	const isForSale = searchParams.get("isForSale") === "true";
+	const isForRent = searchParams.get("isForRent") === "true";
 
 	const [selectedCategory, setSelectedCategory] =
 		useState<string>(currentCategory);
@@ -46,28 +48,34 @@ export default function ProductFilters({
 			"Lain-lain",
 		];
 
-		// Handle empty or invalid input
-		if (!categories) {
-			console.log("No categories provided, using defaults");
+		try {
+			// Handle empty or invalid input
+			if (!categories) {
+				console.log("No categories provided, using defaults");
+				setDisplayCategories(defaultCategories);
+				return;
+			}
+
+			// If we already have a string array, use it directly
+			if (Array.isArray(categories)) {
+				const stringCategories = categories
+					.filter((cat) => cat !== null && cat !== undefined)
+					.map((cat) => String(cat));
+
+				if (stringCategories.length > 0) {
+					console.log("Categories processed:", stringCategories);
+					setDisplayCategories(stringCategories);
+					return;
+				}
+			}
+
+			// For any other case, use the defaults
+			console.log("Using default categories");
 			setDisplayCategories(defaultCategories);
-			return;
+		} catch (error) {
+			console.error("Error processing categories in ProductFilters:", error);
+			setDisplayCategories(defaultCategories);
 		}
-
-		// If we already have a string array, use it directly
-		if (
-			Array.isArray(categories) &&
-			categories.every((cat) => typeof cat === "string")
-		) {
-			console.log("Categories are already strings:", categories);
-			setDisplayCategories(
-				categories.length > 0 ? categories : defaultCategories
-			);
-			return;
-		}
-
-		// For any other case, just use the defaults
-		console.log("Using default categories");
-		setDisplayCategories(defaultCategories);
 	}, [categories]);
 
 	const handleCategoryChange = (category: string) => {
@@ -86,6 +94,14 @@ export default function ProductFilters({
 		// Reset to page 1 when changing filters
 		params.delete("page");
 
+		// Preserve sale/rent filters
+		if (isForSale) {
+			params.set("isForSale", "true");
+		}
+		if (isForRent) {
+			params.set("isForRent", "true");
+		}
+
 		router.push(`/produk?${params.toString()}`);
 	};
 
@@ -100,6 +116,14 @@ export default function ProductFilters({
 		// Preserve sort if not default
 		if (currentSort !== "newest") {
 			params.set("sort", currentSort);
+		}
+
+		// Preserve sale/rent filters
+		if (isForSale) {
+			params.set("isForSale", "true");
+		}
+		if (isForRent) {
+			params.set("isForRent", "true");
 		}
 
 		setSelectedCategory("");
