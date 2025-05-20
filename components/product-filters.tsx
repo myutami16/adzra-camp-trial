@@ -32,85 +32,42 @@ export default function ProductFilters({
 
 	// Process categories when component mounts or categories prop changes
 	useEffect(() => {
-		console.log("Processing categories in ProductFilters:", categories);
-		let processedCategories: string[] = [];
+		console.log("ProductFilters received categories:", categories);
 
-		try {
-			if (Array.isArray(categories) && categories.length > 0) {
-				// Convert any potential Symbol values to strings and filter out non-string values
-				processedCategories = categories
-					.map((cat) => {
-						try {
-							// Only include string values or values that can be safely converted to strings
-							return typeof cat === "string"
-								? cat
-								: cat !== null && cat !== undefined
-								? String(cat)
-								: null;
-						} catch (e) {
-							console.error("Error converting category to string:", e);
-							return null;
-						}
-					})
-					.filter(Boolean); // Remove null/undefined/empty values
+		// Initialize with default categories
+		const defaultCategories = [
+			"Tenda Camping",
+			"Aksesori",
+			"Sleeping Bag",
+			"Perlengkapan Outdoor & Survival",
+			"Lampu",
+			"Carrier & Ransel",
+			"Peralatan Memasak Outdoor",
+			"Lain-lain",
+		];
 
-				console.log("Categories are an array with length:", categories.length);
-			} else if (typeof categories === "object" && categories !== null) {
-				// Try to extract categories from object
-				console.log("Categories is an object, attempting to extract array");
-				if (Array.isArray(categories.data)) {
-					processedCategories = categories.data
-						.map((cat) => {
-							try {
-								return typeof cat === "string"
-									? cat
-									: cat !== null && cat !== undefined
-									? String(cat)
-									: null;
-							} catch (e) {
-								console.error("Error converting category to string:", e);
-								return null;
-							}
-						})
-						.filter(Boolean);
-				} else if (Array.isArray(categories.categories)) {
-					processedCategories = categories.categories
-						.map((cat) => {
-							try {
-								return typeof cat === "string"
-									? cat
-									: cat !== null && cat !== undefined
-									? String(cat)
-									: null;
-							} catch (e) {
-								console.error("Error converting category to string:", e);
-								return null;
-							}
-						})
-						.filter(Boolean);
-				}
-			}
-		} catch (error) {
-			console.error("Error processing categories:", error);
+		// Handle empty or invalid input
+		if (!categories) {
+			console.log("No categories provided, using defaults");
+			setDisplayCategories(defaultCategories);
+			return;
 		}
 
-		// If we still don't have categories, use default ones
-		if (processedCategories.length === 0) {
-			console.log("No valid categories found, using defaults");
-			processedCategories = [
-				"Tenda Camping",
-				"Aksesori",
-				"Sleeping Bag",
-				"Perlengkapan Outdoor & Survival",
-				"Lampu",
-				"Carrier & Ransel",
-				"Peralatan Memasak Outdoor",
-				"Lain-lain",
-			];
+		// If we already have a string array, use it directly
+		if (
+			Array.isArray(categories) &&
+			categories.every((cat) => typeof cat === "string")
+		) {
+			console.log("Categories are already strings:", categories);
+			setDisplayCategories(
+				categories.length > 0 ? categories : defaultCategories
+			);
+			return;
 		}
 
-		console.log("Final processed categories:", processedCategories);
-		setDisplayCategories(processedCategories);
+		// For any other case, just use the defaults
+		console.log("Using default categories");
+		setDisplayCategories(defaultCategories);
 	}, [categories]);
 
 	const handleCategoryChange = (category: string) => {
@@ -174,7 +131,7 @@ export default function ProductFilters({
 						<div className="space-y-2">
 							{displayCategories.map((category: string, index: number) => (
 								<div
-									key={`${category}-${index}`}
+									key={`category-${index}`}
 									className="flex items-center space-x-2">
 									<Checkbox
 										id={`category-${index}`}
