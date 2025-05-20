@@ -140,7 +140,9 @@ export default async function ProductsPage({
 		console.log("Using fallback categories:", categories);
 	}
 
-	const page = searchParams.page ? Number.parseInt(searchParams.page) : 1;
+	const page = Number.isNaN(Number(searchParams.page))
+		? 1
+		: Number(searchParams.page);
 	const kategori = searchParams.kategori;
 	const sort = searchParams.sort;
 	const query = searchParams.q;
@@ -148,10 +150,29 @@ export default async function ProductsPage({
 	const isForRent = searchParams.isForRent === "true";
 
 	const createFilterUrl = (filter: "sale" | "rent" | "all") => {
-		const params = new URLSearchParams(searchParams as Record<string, string>);
+		const rawParams = searchParams as Record<string, unknown>;
 
+		const params = new URLSearchParams();
+
+		for (const key in rawParams) {
+			const value = rawParams[key];
+
+			// Lewatkan undefined, null, dan symbol
+			if (value === undefined || value === null || typeof value === "symbol") {
+				continue;
+			}
+
+			try {
+				params.set(key, String(value));
+			} catch (e) {
+				console.warn(`Skipping key ${key} due to conversion error`, e);
+			}
+		}
+
+		// Remove pagination
 		params.delete("page");
 
+		// Overwrite filter logic
 		if (filter === "sale") {
 			params.set("isForSale", "true");
 			params.delete("isForRent");
