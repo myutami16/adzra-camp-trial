@@ -108,15 +108,27 @@ export async function fetchProducts(
 		console.log("Products API response:", result);
 
 		// Handle the specific API response structure
-		if (result.success && result.data) {
+		if (result.success && result.data && result.data.products) {
 			return {
 				data: {
-					products: [result.data], // Wrap the single product in an array
+					products: result.data.products,
+					pagination: result.data.pagination || {
+						currentPage: 1,
+						totalPages: 1,
+						totalItems: result.data.products.length,
+						itemsPerPage: result.data.products.length,
+					},
+				},
+			};
+		} else if (result.data && Array.isArray(result.data)) {
+			return {
+				data: {
+					products: result.data,
 					pagination: {
-						currentPage: result.currentPage || 1,
-						totalPages: result.totalPages || 1,
-						totalItems: result.totalCount || 1,
-						itemsPerPage: 1,
+						currentPage: 1,
+						totalPages: 1,
+						totalItems: result.data.length,
+						itemsPerPage: result.data.length,
 					},
 				},
 			};
