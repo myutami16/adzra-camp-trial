@@ -25,12 +25,46 @@ export default function ProductFilters({
 	const currentCategory = searchParams.get("kategori") || "";
 	const currentSort = searchParams.get("sort") || "newest";
 	const currentQuery = searchParams.get("q") || "";
-	const isForSale = searchParams.get("isForSale") === "true";
-	const isForRent = searchParams.get("isForRent") === "true";
 
 	const [selectedCategory, setSelectedCategory] =
 		useState<string>(currentCategory);
 	const [displayCategories, setDisplayCategories] = useState<string[]>([]);
+
+	// Safe function to convert any value to string
+	const safeToString = (value: any): string | null => {
+		if (value === null || value === undefined) return null;
+
+		try {
+			if (typeof value === "string") return value;
+			if (typeof value === "number" || typeof value === "boolean")
+				return String(value);
+
+			// Handle Symbol safely
+			if (typeof value === "symbol") {
+				// Try to use description
+				try {
+					return value.description || "[Symbol]";
+				} catch (e) {
+					// Fallback to string conversion with regex
+					const str = String(value);
+					const match = /Symbol\((.*)\)/.exec(str);
+					return match ? match[1] || "[Symbol]" : "[Symbol]";
+				}
+			}
+
+			// Handle objects
+			if (typeof value === "object") {
+				if (value.name && typeof value.name === "string") return value.name;
+				if (value.title && typeof value.title === "string") return value.title;
+				if (value.id && typeof value.id === "string") return value.id;
+			}
+
+			return String(value);
+		} catch (e) {
+			console.error("Failed to safely convert to string:", e);
+			return "[Conversion Error]";
+		}
+	};
 
 	// Process categories when component mounts or categories prop changes
 	useEffect(() => {
@@ -48,34 +82,41 @@ export default function ProductFilters({
 			"Lain-lain",
 		];
 
-		try {
-			// Handle empty or invalid input
-			if (!categories) {
-				console.log("No categories provided, using defaults");
-				setDisplayCategories(defaultCategories);
+		// Handle empty or invalid input
+		if (!categories) {
+			console.log("No categories provided, using defaults");
+			setDisplayCategories(defaultCategories);
+			return;
+		}
+
+		// If we already have a string array, use it directly
+		if (
+			Array.isArray(categories) &&
+			categories.every((cat) => typeof cat === "string")
+		) {
+			console.log("Categories are already strings:", categories);
+			setDisplayCategories(
+				categories.length > 0 ? categories : defaultCategories
+			);
+			return;
+		}
+
+		// Try to convert array of non-strings to strings
+		if (Array.isArray(categories)) {
+			const stringCategories = categories
+				.map(safeToString)
+				.filter(Boolean) as string[];
+
+			if (stringCategories.length > 0) {
+				console.log("Converted categories to strings:", stringCategories);
+				setDisplayCategories(stringCategories);
 				return;
 			}
-
-			// If we already have a string array, use it directly
-			if (Array.isArray(categories)) {
-				const stringCategories = categories
-					.filter((cat) => cat !== null && cat !== undefined)
-					.map((cat) => String(cat));
-
-				if (stringCategories.length > 0) {
-					console.log("Categories processed:", stringCategories);
-					setDisplayCategories(stringCategories);
-					return;
-				}
-			}
-
-			// For any other case, use the defaults
-			console.log("Using default categories");
-			setDisplayCategories(defaultCategories);
-		} catch (error) {
-			console.error("Error processing categories in ProductFilters:", error);
-			setDisplayCategories(defaultCategories);
 		}
+
+		// For any other case, just use the defaults
+		console.log("Using default categories");
+		setDisplayCategories(defaultCategories);
 	}, [categories]);
 
 	const handleCategoryChange = (category: string) => {
@@ -94,14 +135,6 @@ export default function ProductFilters({
 		// Reset to page 1 when changing filters
 		params.delete("page");
 
-		// Preserve sale/rent filters
-		if (isForSale) {
-			params.set("isForSale", "true");
-		}
-		if (isForRent) {
-			params.set("isForRent", "true");
-		}
-
 		router.push(`/produk?${params.toString()}`);
 	};
 
@@ -116,14 +149,6 @@ export default function ProductFilters({
 		// Preserve sort if not default
 		if (currentSort !== "newest") {
 			params.set("sort", currentSort);
-		}
-
-		// Preserve sale/rent filters
-		if (isForSale) {
-			params.set("isForSale", "true");
-		}
-		if (isForRent) {
-			params.set("isForRent", "true");
 		}
 
 		setSelectedCategory("");
