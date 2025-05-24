@@ -14,7 +14,8 @@ const Navbar = () => {
   }
 
   return (
-    <nav className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
+   <>
+    <nav className="bg-gray-300 dark:bg-gray-800 shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-2">
         <div className="flex justify-between items-center">
           <Link href="/" className="flex items-center">
@@ -22,30 +23,30 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex space-x-8 items-center">
+          <div className="hidden md:flex space-x-10 items-center font-extralight">
             <Link
               href="/"
-              className="text-gray-800 dark:text-gray-200 hover:text-primary-dark dark:hover:text-primary-light font-medium"
+              className=" py-3 text-gray-800 dark:text-gray-200 hover:text-green-600 hover:border-b-2 hover:border-green-600 dark:hover:text-primary-light"
             >
               Beranda
             </Link>
             <Link
               href="/produk"
-              className="text-gray-800 dark:text-gray-200 hover:text-primary-dark dark:hover:text-primary-light font-medium"
+              className=" py-3 text-gray-800 dark:text-gray-200 hover:text-green-600 hover:border-b-2 hover:border-green-600 dark:hover:text-primary-light"
             >
               Produk
             </Link>
             <Link
               href="/blog"
-              className="text-gray-800 dark:text-gray-200 hover:text-primary-dark dark:hover:text-primary-light font-medium"
+              className=" py-3 text-gray-800 dark:text-gray-200 hover:text-green-600 hover:border-b-2 hover:border-green-600 dark:hover:text-primary-light"
             >
               Blog
             </Link>
             <div className="relative group">
               <Link
                 href="/jual-rental"
-                className="text-gray-800 dark:text-gray-200 hover:text-primary-dark dark:hover:text-primary-light font-medium"
-              >
+              className=" py-3 text-gray-800 dark:text-gray-200 hover:text-green-600 hover:border-b-2 hover:border-green-600 dark:hover:text-primary-light"
+            >
                 Jual & Rental
               </Link>
               <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
@@ -77,12 +78,12 @@ const Navbar = () => {
             </div>
             <Link
               href="/tentang-kami"
-              className="text-gray-800 dark:text-gray-200 hover:text-primary-dark dark:hover:text-primary-light font-medium"
-            >
+              className=" py-3 text-gray-800 dark:text-gray-200 hover:text-green-600 hover:border-b-2 hover:border-green-600 dark:hover:text-primary-light"
+            > 
               Tentang Kami
             </Link>
             <ThemeToggle />
-          </div>
+          </div>  
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center gap-2">
@@ -163,6 +164,7 @@ const Navbar = () => {
         )}
       </div>
     </nav>
+   </>
   )
 }
 

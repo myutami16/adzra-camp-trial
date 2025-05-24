@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tent, ShoppingBag, MapPin, Clock, Award, Users } from "lucide-react"
 import ProductCard from "@/components/product-card"
 import BlogCard from "@/components/blog-card"
+import BannerSlider from "@/components/BannerSlide"
 import { fetchProducts, fetchContent } from "@/lib/api"
 
 export default async function Home() {
@@ -14,7 +15,14 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
+
+
+
+      {/* Sliding banner */}
+      <BannerSlider />
+
       {/* Hero Section */}
+
       <section className="relative bg-primary-dark text-white py-20 md:py-32">
         <div className="absolute inset-0 bg-[url('/images/hero-bg.jpg')] bg-cover bg-center opacity-30"></div>
         <div className="container mx-auto px-4 relative z-10">
