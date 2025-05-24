@@ -23,10 +23,9 @@ export default async function Home() {
 
       {/* Hero Section */}
 
-      <section className="relative bg-primary-dark text-white py-20 md:py-32">
-        <div className="absolute inset-0 bg-[url('/images/hero-bg.jpg')] bg-cover bg-center opacity-30"></div>
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-3xl">
+      <section className="relative bg-primary-dark dark:bg-gray-800 text-white py-32">
+        <div className="flex flex-row h-full">
+          <div className="basis-1/2 px-20 space-y-5">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
               Peralatan Camping Berkualitas untuk Petualangan Anda
             </h1>
@@ -34,6 +33,7 @@ export default async function Home() {
               Sewa atau beli peralatan camping terbaik untuk kebutuhan outdoor Anda. Kami menyediakan berbagai peralatan
               berkualitas dengan harga terjangkau.
             </p>
+
             <div className="flex flex-col sm:flex-row gap-4">
               <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-white">
                 <Link href="/jual-rental/form-persewaan">Sewa Sekarang</Link>
@@ -48,56 +48,65 @@ export default async function Home() {
               </Button>
             </div>
           </div>
+
+          <div className="basis-1/2 h-full flex items-center justify-center">
+            <img
+              src="Hero/hero1.png"
+              alt="HeroImage"
+              className="w-[400px] h-[400px] object-cover"
+            />
+          </div>
+
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white dark:bg-gray-500">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Mengapa Memilih Adzra Camp?</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold mb-4 dark:text-white">Mengapa Memilih Adzra Camp?</h2>
+            <p className="text-gray-300 max-w-2xl mx-auto">
               Kami menyediakan peralatan camping berkualitas dengan pelayanan terbaik untuk kebutuhan outdoor Anda.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="border-none shadow-lg">
+            <Card className="border-none shadow-lg dark:bg-gray-800">
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center text-center">
                   <div className="p-3 bg-primary-light/10 rounded-full mb-4">
-                    <Award className="h-8 w-8 text-primary-dark" />
+                    <Award className="h-8 w-8 text-primary-dark dark:text-white" />
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Peralatan Berkualitas</h3>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 dark:text-gray-200">
                     Semua peralatan kami terawat dengan baik dan berkualitas tinggi untuk kenyamanan Anda.
                   </p>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-none shadow-lg">
+            <Card className="border-none shadow-lg dark:bg-gray-800">
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center text-center">
                   <div className="p-3 bg-primary-light/10 rounded-full mb-4">
-                    <Clock className="h-8 w-8 text-primary-dark" />
+                    <Clock className="h-8 w-8 text-primary-dark dark:text-white" />
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Proses Cepat</h3>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 dark:text-gray-200">
                     Proses pemesanan dan pengambilan yang cepat dan mudah untuk menghemat waktu Anda.
                   </p>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-none shadow-lg">
+            <Card className="border-none shadow-lg dark:bg-gray-800">
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center text-center">
                   <div className="p-3 bg-primary-light/10 rounded-full mb-4">
-                    <MapPin className="h-8 w-8 text-primary-dark" />
+                    <MapPin className="h-8 w-8 text-primary-dark dark:text-white" />
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Lokasi Strategis</h3>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 dark:text-gray-200">
                     Lokasi kami yang strategis di Mojokerto, dekat dengan berbagai destinasi camping populer.
                   </p>
                 </div>
@@ -108,17 +117,17 @@ export default async function Home() {
       </section>
 
       {/* Services Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-gray-50 dark:bg-gray-500">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Layanan Kami</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <p className="text-gray-600 max-w-2xl mx-auto dark:text-gray-300">
               Kami menyediakan dua layanan utama untuk memenuhi kebutuhan outdoor Anda.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Card className="overflow-hidden border-none shadow-lg">
+            <Card className="overflow-hidden border-none shadow-lg dark:bg-gray-800">
               <div className="relative h-48">
                 <Image src="/images/rental-service.jpg" alt="Rental Service" fill className="object-cover" />
               </div>
@@ -128,18 +137,18 @@ export default async function Home() {
                     <Tent className="h-6 w-6 text-primary-dark mr-2" />
                     <h3 className="text-xl font-semibold">Persewaan Peralatan</h3>
                   </div>
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-gray-600 mb-4 dark:text-gray-300">
                     Sewa peralatan camping berkualitas dengan harga terjangkau untuk kebutuhan outdoor Anda. Tersedia
                     berbagai pilihan peralatan dari tenda hingga peralatan masak.
                   </p>
-                  <Button asChild className="mt-auto bg-primary-dark hover:bg-primary-dark/90">
-                    <Link href="/jual-rental/form-persewaan">Sewa Sekarang</Link>
+                  <Button asChild className="mt-auto bg-primary-dark hover:bg-primary-dark/90 dark:bg-green-600">
+                    <Link href="/jual-rental/form-persewaan" className="text-white">Sewa Sekarang</Link>
                   </Button>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="overflow-hidden border-none shadow-lg">
+            <Card className="overflow-hidden border-none shadow-lg dark:bg-gray-800">
               <div className="relative h-48">
                 <Image src="/images/store-service.jpg" alt="Store Service" fill className="object-cover" />
               </div>
@@ -149,12 +158,12 @@ export default async function Home() {
                     <ShoppingBag className="h-6 w-6 text-primary-dark mr-2" />
                     <h3 className="text-xl font-semibold">Toko Peralatan</h3>
                   </div>
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-gray-600 mb-4 dark:text-gray-300">
                     Beli peralatan camping berkualitas untuk koleksi pribadi Anda. Kami menyediakan berbagai produk
                     outdoor dengan kualitas terbaik.
                   </p>
-                  <Button asChild className="mt-auto bg-primary-dark hover:bg-primary-dark/90">
-                    <Link href="/produk">Belanja Sekarang</Link>
+                  <Button asChild className="mt-auto bg-primary-dark hover:bg-primary-dark/90 dark:bg-green-600">
+                    <Link href="/produk" className="text-white">Belanja Sekarang</Link>
                   </Button>
                 </div>
               </CardContent>
@@ -164,7 +173,7 @@ export default async function Home() {
       </section>
 
       {/* Featured Products */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white dark:bg-gray-500">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-bold">Produk Unggulan</h2>
@@ -182,7 +191,7 @@ export default async function Home() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-16 bg-primary-dark text-white">
+      <section className="py-16 bg-primary-dark text-white dark:bg-gray-800">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Apa Kata Mereka?</h2>
@@ -262,7 +271,7 @@ export default async function Home() {
       </section>
 
       {/* Recent Blog Posts */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white dark:bg-gray-500">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-bold">Blog Terbaru</h2>
@@ -280,7 +289,7 @@ export default async function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-accent">
+      <section className="py-16 bg-accent dark:bg-yellow-800">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold text-white mb-6">Siap Untuk Petualangan Berikutnya?</h2>
           <p className="text-white text-lg mb-8 max-w-2xl mx-auto">
