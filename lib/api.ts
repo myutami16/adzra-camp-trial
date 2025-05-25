@@ -58,15 +58,15 @@ export interface ContentResponse {
 	};
 }
 
-// Fetch functions
+// Updated fetchProducts function with consistent search parameter handling
 export async function fetchProducts(
 	params: {
 		page?: number;
 		limit?: number;
 		sort?: string;
 		kategori?: string;
-		search?: string;
-		q?: string;
+		search?: string; // Updated: use 'search' instead of 'q'
+		q?: string; // Keep for backward compatibility
 		id?: number;
 		slug?: string;
 		path?: string;
@@ -81,11 +81,13 @@ export async function fetchProducts(
 		if (params.limit) queryParams.append("limit", params.limit.toString());
 		if (params.sort) queryParams.append("sort", params.sort);
 		if (params.kategori) queryParams.append("kategori", params.kategori);
+
+		// Updated search parameter logic - prioritize 'search' over 'q'
 		const searchQuery = params.search || params.q;
-		if (params.q) {
 		if (searchQuery) {
 			queryParams.append("search", searchQuery);
 		}
+
 		if (params.id) queryParams.append("id", params.id.toString());
 		if (params.slug) queryParams.append("slug", params.slug);
 		if (params.path) queryParams.append("path", params.path);
@@ -138,7 +140,7 @@ export async function fetchProducts(
 				};
 			}
 		}
-		
+
 		// Handle direct array response (like your Hydropack API response)
 		if (Array.isArray(result.data)) {
 			return {
@@ -420,6 +422,7 @@ export async function getContentBySlug(
 	}
 }
 
+// Updated searchProducts function to use 'search' parameter
 export async function searchProducts(query: string): Promise<ProductsResponse> {
 	return fetchProducts({ search: query }) as Promise<ProductsResponse>;
 }
@@ -455,7 +458,11 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 
 export async function getProductCategories(): Promise<string[]> {
 	try {
+		// Instead of trying to access a dedicated categories endpoint that doesn't exist,
+		// we'll extract categories from the products themselves
 		console.log("Fetching products to extract categories...");
+
+		// Fetch products with a higher limit to get a good sample of categories
 		const productsResponse = await fetchProducts({ limit: 100 });
 		const products = productsResponse.data.products;
 
@@ -465,9 +472,9 @@ export async function getProductCategories(): Promise<string[]> {
 			// Extract unique categories from products
 			const categories = products
 				.map((product) => product.kategori)
-				.filter((category): category is string => !!category)
-				.filter((value, index, self) => self.indexOf(value) === index) 
-				.sort(); 
+				.filter((category): category is string => !!category) // Remove undefined/null
+				.filter((value, index, self) => self.indexOf(value) === index) // Get unique values
+				.sort(); // Sort alphabetically
 
 			console.log("Extracted categories:", categories);
 
@@ -476,7 +483,7 @@ export async function getProductCategories(): Promise<string[]> {
 			}
 		}
 
-		
+		// Fallback to default categories if extraction fails or returns empty
 		console.log("Using default categories as fallback");
 		return [
 			"Tenda Camping",
@@ -564,4 +571,4 @@ export async function fetchAdminStats() {
 			userCount: 0,
 		};
 	}
-}}
+}
