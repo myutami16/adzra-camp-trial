@@ -65,8 +65,8 @@ export async function fetchProducts(
 		limit?: number;
 		sort?: string;
 		kategori?: string;
-		search?: string; // Updated: use 'search' instead of 'q'
-		q?: string; // Keep for backward compatibility
+		search?: string;
+		q?: string;
 		id?: number;
 		slug?: string;
 		path?: string;
@@ -82,7 +82,6 @@ export async function fetchProducts(
 		if (params.sort) queryParams.append("sort", params.sort);
 		if (params.kategori) queryParams.append("kategori", params.kategori);
 
-		// Updated search parameter logic - prioritize 'search' over 'q'
 		const searchQuery = params.search || params.q;
 		if (searchQuery) {
 			queryParams.append("search", searchQuery);
@@ -111,41 +110,117 @@ export async function fetchProducts(
 		const result = await response.json();
 		console.log("Products API response:", result);
 
-		// Handle the specific API response structure
-		if (result.success && result.data) {
-			// Handle both array and object data structures
-			if (Array.isArray(result.data)) {
-				return {
-					data: {
-						products: result.data,
-						pagination: {
-							currentPage: result.currentPage || 1,
-							totalPages: result.totalPages || 1,
-							totalItems: result.totalCount || result.data.length,
-							itemsPerPage: result.data.length,
-						},
-					},
-				};
-			} else if (result.data.products) {
-				return {
-					data: {
-						products: result.data.products,
-						pagination: result.data.pagination || {
-							currentPage: 1,
-							totalPages: 1,
-							totalItems: result.data.products.length,
-							itemsPerPage: result.data.products.length,
-						},
-					},
-				};
-			}
-		}
+		// Handle single product response (when searching by slug)
+		if (result.success && result.data && !Array.isArray(result.data)) {
+			// Single product response - convert to array format
+			const singleProduct = {
+				id: result.data._id || result.data.id,
+				namaProduk: result.data.namaProduk,
+				slug: result.data.slug,
+				deskripsi: result.data.deskripsi,
+				harga: result.data.harga,
+				stok: result.data.stok,
+				isForRent: result.data.isForRent,
+				isForSale: result.data.isForSale,
+				kategori: result.data.kategori,
+				gambar: result.data.gambar,
+				specifications: result.data.specifications,
+				createdAt: result.data.createdAt,
+			};
 
-		// Handle direct array response (like your Hydropack API response)
-		if (Array.isArray(result.data)) {
 			return {
 				data: {
-					products: result.data,
+					products: [singleProduct],
+					pagination: {
+						currentPage: 1,
+						totalPages: 1,
+						totalItems: 1,
+						itemsPerPage: 1,
+					},
+				},
+			};
+		}
+
+		// Handle the array response structure
+		if (result.success && result.data && Array.isArray(result.data)) {
+			const products = result.data.map((item: any) => ({
+				id: item._id || item.id,
+				namaProduk: item.namaProduk,
+				slug: item.slug,
+				deskripsi: item.deskripsi,
+				harga: item.harga,
+				stok: item.stok,
+				isForRent: item.isForRent,
+				isForSale: item.isForSale,
+				kategori: item.kategori,
+				gambar: item.gambar,
+				specifications: item.specifications,
+				createdAt: item.createdAt,
+			}));
+
+			return {
+				data: {
+					products: products,
+					pagination: {
+						currentPage: result.currentPage || 1,
+						totalPages: result.totalPages || 1,
+						totalItems: result.totalCount || result.data.length,
+						itemsPerPage: result.data.length,
+					},
+				},
+			};
+		}
+
+		// Handle nested products structure
+		if (result.success && result.data && result.data.products) {
+			const products = result.data.products.map((item: any) => ({
+				id: item._id || item.id,
+				namaProduk: item.namaProduk,
+				slug: item.slug,
+				deskripsi: item.deskripsi,
+				harga: item.harga,
+				stok: item.stok,
+				isForRent: item.isForRent,
+				isForSale: item.isForSale,
+				kategori: item.kategori,
+				gambar: item.gambar,
+				specifications: item.specifications,
+				createdAt: item.createdAt,
+			}));
+
+			return {
+				data: {
+					products: products,
+					pagination: result.data.pagination || {
+						currentPage: 1,
+						totalPages: 1,
+						totalItems: products.length,
+						itemsPerPage: products.length,
+					},
+				},
+			};
+		}
+
+		// Handle direct array response (fallback)
+		if (Array.isArray(result.data)) {
+			const products = result.data.map((item: any) => ({
+				id: item._id || item.id,
+				namaProduk: item.namaProduk,
+				slug: item.slug,
+				deskripsi: item.deskripsi,
+				harga: item.harga,
+				stok: item.stok,
+				isForRent: item.isForRent,
+				isForSale: item.isForSale,
+				kategori: item.kategori,
+				gambar: item.gambar,
+				specifications: item.specifications,
+				createdAt: item.createdAt,
+			}));
+
+			return {
+				data: {
+					products: products,
 					pagination: {
 						currentPage: result.currentPage || 1,
 						totalPages: result.totalPages || 1,
@@ -512,7 +587,6 @@ export async function getProductCategories(): Promise<string[]> {
 }
 
 // Admin API functions
-// Update the fetchAdminStats function to use authentication token
 
 export async function fetchAdminStats() {
 	try {
