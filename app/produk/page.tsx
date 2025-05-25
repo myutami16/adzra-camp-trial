@@ -21,6 +21,7 @@ interface ProductsPageProps {
 		kategori?: string;
 		sort?: string;
 		q?: string;
+		search?: string;
 		isForSale?: string;
 		isForRent?: string;
 	};
@@ -146,7 +147,7 @@ export default async function ProductsPage({
 		: Number(searchParams.page);
 	const kategori = searchParams.kategori;
 	const sort = searchParams.sort;
-	const query = searchParams.q;
+	const query = searchParams.search || searchParams.q;
 	const isForSale = searchParams.isForSale === "true";
 	const isForRent = searchParams.isForRent === "true";
 
@@ -190,7 +191,6 @@ export default async function ProductsPage({
 
 	return (
 		<div className="container py-8 max-w-full">
-			
 			<div className="flex flex-col gap-6">
 				{/* <div>
 					<h1 className="text-3xl font-bold mb-2">Produk Kami</h1>
