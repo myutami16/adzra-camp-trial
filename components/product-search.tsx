@@ -1,64 +1,256 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Input } from "@/components/ui/input";
+import "@/lib/symbol-polyfill";
+import { Suspense } from "react";
+import { getProductCategories } from "@/lib/api";
+import ProductList from "@/components/product-list";
+import ProductFilters from "@/components/product-filters";
+import ProductsLoading from "@/components/products-loading";
+import ProductSearch from "@/components/product-search";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { ShoppingBag, Tent } from "lucide-react";
+import Link from "next/link";
+import ProductBanner from "@/components/Product-Banner";
 
-interface ProductSearchProps {
-	initialQuery?: string;
+export const metadata = {
+	title: "Produk - Adzra Camp",
+	description: "Jelajahi berbagai produk camping berkualitas dari Adzra Camp",
+};
+
+interface ProductsPageProps {
+	searchParams: {
+		page?: string;
+		kategori?: string;
+		sort?: string;
+		q?: string;
+		search?: string; // Add search parameter
+		isForSale?: string;
+		isForRent?: string;
+	};
 }
 
-export default function ProductSearch({
-	initialQuery = "",
-}: ProductSearchProps) {
-	const router = useRouter();
-	const searchParams = useSearchParams();
-	const [query, setQuery] = useState(initialQuery);
+function ensureStringArray(input: any): string[] {
+	const defaultCategories = [
+		"Tenda Camping",
+		"Aksesori",
+		"Sleeping Bag",
+		"Perlengkapan Outdoor & Survival",
+		"Lampu",
+		"Carrier & Ransel",
+		"Peralatan Memasak Outdoor",
+		"Lain-lain",
+	];
 
-	useEffect(() => {
-		setQuery(initialQuery);
-	}, [initialQuery]);
+	try {
+		if (!input) return defaultCategories;
 
-	const handleSearch = (e: React.FormEvent) => {
-		e.preventDefault();
-		console.log("Searching for:", query);
-
-		const params = new URLSearchParams(searchParams.toString());
-
-		// Clear existing parameters except for page, kategori, sort, isForSale, and isForRent
-		params.delete("q");
-		params.delete("search");
-
-		if (query) {
-			params.set("search", "");
-			params.set("q", query);
+		if (
+			Array.isArray(input) &&
+			input.every((item) => typeof item === "string")
+		) {
+			return input.length > 0 ? input : defaultCategories;
 		}
 
-		// Reset to page 1 when searching
+		if (Array.isArray(input)) {
+			const result = input
+				.map((item) => {
+					if (item === null || item === undefined) return null;
+					try {
+						if (typeof item === "string") return item;
+						if (typeof item === "number" || typeof item === "boolean")
+							return String(item);
+
+						if (typeof item === "symbol") {
+							try {
+								return item.description || "[Symbol]";
+							} catch (err) {
+								try {
+									const stringValue = String(item).replace(
+										/^Symbol\((.+)\)$/,
+										"$1"
+									);
+									return stringValue || "[Symbol]";
+								} catch (convErr) {
+									console.error("Failed to convert symbol:", convErr);
+									return "[Symbol]";
+								}
+							}
+						}
+
+						if (typeof item === "object") {
+							if (item.name && typeof item.name === "string") return item.name;
+							if (item.title && typeof item.title === "string")
+								return item.title;
+							if (item.id && typeof item.id === "string") return item.id;
+							return "[Object]";
+						}
+
+						return String(item);
+					} catch (e) {
+						console.error("Failed to convert category to string:", e);
+						return null;
+					}
+				})
+				.filter(Boolean);
+
+			return result.length > 0 ? result : defaultCategories;
+		}
+
+		if (typeof input === "object" && input !== null) {
+			if (Array.isArray(input.data)) {
+				const processed = ensureStringArray(input.data);
+				if (processed.length > 0) return processed;
+			}
+
+			if (Array.isArray(input.categories)) {
+				const processed = ensureStringArray(input.categories);
+				if (processed.length > 0) return processed;
+			}
+		}
+
+		return defaultCategories;
+	} catch (error) {
+		console.error("Error processing categories:", error);
+		return defaultCategories;
+	}
+}
+
+export default async function ProductsPage({
+	searchParams,
+}: ProductsPageProps) {
+	let categories: string[] = [];
+
+	try {
+		console.log("Attempting to fetch product categories...");
+		const rawCategories = await getProductCategories();
+		console.log("Categories fetched successfully:", rawCategories);
+
+		categories = ensureStringArray(rawCategories);
+
+		console.log("Processed categories:", categories);
+	} catch (error) {
+		console.error("Error in ProductsPage when fetching categories:", error);
+
+		categories = [
+			"Tenda Camping",
+			"Aksesori",
+			"Sleeping Bag",
+			"Perlengkapan Outdoor & Survival",
+			"Lampu",
+			"Carrier & Ransel",
+			"Peralatan Memasak Outdoor",
+			"Lain-lain",
+		];
+		console.log("Using fallback categories:", categories);
+	}
+
+	const page = Number.isNaN(Number(searchParams.page))
+		? 1
+		: Number(searchParams.page);
+	const kategori = searchParams.kategori;
+	const sort = searchParams.sort;
+
+	// Use search parameter instead of q, with fallback to q for backward compatibility
+	const query = searchParams.search || searchParams.q;
+
+	const isForSale = searchParams.isForSale === "true";
+	const isForRent = searchParams.isForRent === "true";
+
+	const createFilterUrl = (filter: "sale" | "rent" | "all") => {
+		const rawParams = searchParams as Record<string, unknown>;
+
+		const params = new URLSearchParams();
+
+		for (const key in rawParams) {
+			const value = rawParams[key];
+
+			// Skip undefined, null, and symbol
+			if (value === undefined || value === null || typeof value === "symbol") {
+				continue;
+			}
+
+			try {
+				params.set(key, String(value));
+			} catch (e) {
+				console.warn(`Skipping key ${key} due to conversion error`, e);
+			}
+		}
+
+		// Remove pagination
 		params.delete("page");
 
-		const searchUrl = `/produk?${params.toString()}`;
-		console.log("Search URL:", searchUrl);
-		router.push(searchUrl);
+		// Overwrite filter logic
+		if (filter === "sale") {
+			params.set("isForSale", "true");
+			params.delete("isForRent");
+		} else if (filter === "rent") {
+			params.set("isForRent", "true");
+			params.delete("isForSale");
+		} else {
+			params.delete("isForSale");
+			params.delete("isForRent");
+		}
+
+		return `/produk?${params.toString()}`;
 	};
 
 	return (
-		<form onSubmit={handleSearch} className="w-full px-5">
-			<div className="flex gap-2">
-				<div className="relative flex-1">
-					<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-					<Input
-						type="search"
-						placeholder="Cari produk camping..."
-						value={query}
-						onChange={(e) => setQuery(e.target.value)}
-						className="pl-10"
-					/>
+		<div className="container py-8 max-w-full">
+			<div className="flex flex-col gap-6">
+				<ProductSearch initialQuery={query} />
+				<ProductBanner />
+
+				{/* Show current search query */}
+				{query && (
+					<div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+						<p className="text-sm text-blue-700 dark:text-blue-300">
+							Menampilkan hasil pencarian untuk: <strong>"{query}"</strong>
+						</p>
+					</div>
+				)}
+
+				{/* Sale/Rent Filter Buttons */}
+				<div className="flex flex-wrap gap-2">
+					<Button
+						variant={!isForSale && !isForRent ? "default" : "outline"}
+						asChild>
+						<Link href={createFilterUrl("all")}>Semua Produk</Link>
+					</Button>
+					<Button
+						variant={isForSale ? "default" : "outline"}
+						asChild
+						className="flex items-center gap-2">
+						<Link href={createFilterUrl("sale")}>
+							<ShoppingBag className="h-4 w-4" />
+							Untuk Dijual
+						</Link>
+					</Button>
+					<Button
+						variant={isForRent ? "default" : "outline"}
+						asChild
+						className="flex items-center gap-2">
+						<Link href={createFilterUrl("rent")}>
+							<Tent className="h-4 w-4" />
+							Untuk Disewa
+						</Link>
+					</Button>
 				</div>
-				<Button type="submit">Cari</Button>
+
+				<div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8">
+					<ProductFilters categories={categories} />
+
+					<div>
+						<Suspense fallback={<ProductsLoading />}>
+							<ProductList
+								page={page}
+								kategori={kategori}
+								sort={sort}
+								query={query}
+								isForSale={isForSale}
+								isForRent={isForRent}
+							/>
+						</Suspense>
+					</div>
+				</div>
 			</div>
-		</form>
+		</div>
 	);
 }
