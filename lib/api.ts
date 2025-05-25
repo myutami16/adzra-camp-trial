@@ -65,6 +65,7 @@ export async function fetchProducts(
 		limit?: number;
 		sort?: string;
 		kategori?: string;
+		search?: string;
 		q?: string;
 		id?: number;
 		slug?: string;
@@ -80,9 +81,10 @@ export async function fetchProducts(
 		if (params.limit) queryParams.append("limit", params.limit.toString());
 		if (params.sort) queryParams.append("sort", params.sort);
 		if (params.kategori) queryParams.append("kategori", params.kategori);
+		const searchQuery = params.search || params.q;
 		if (params.q) {
-			queryParams.append("search", ""); // Add the "search" parameter
-			queryParams.append("q", params.q); // Add the search query under "q"
+		if (searchQuery) {
+			queryParams.append("search", searchQuery);
 		}
 		if (params.id) queryParams.append("id", params.id.toString());
 		if (params.slug) queryParams.append("slug", params.slug);
@@ -108,44 +110,62 @@ export async function fetchProducts(
 		console.log("Products API response:", result);
 
 		// Handle the specific API response structure
-		if (result.success && result.data && result.data.products) {
-			return {
-				data: {
-					products: result.data.products,
-					pagination: result.data.pagination || {
-						currentPage: 1,
-						totalPages: 1,
-						totalItems: result.data.products.length,
-						itemsPerPage: result.data.products.length,
+		if (result.success && result.data) {
+			// Handle both array and object data structures
+			if (Array.isArray(result.data)) {
+				return {
+					data: {
+						products: result.data,
+						pagination: {
+							currentPage: result.currentPage || 1,
+							totalPages: result.totalPages || 1,
+							totalItems: result.totalCount || result.data.length,
+							itemsPerPage: result.data.length,
+						},
 					},
-				},
-			};
-		} else if (result.data && Array.isArray(result.data)) {
+				};
+			} else if (result.data.products) {
+				return {
+					data: {
+						products: result.data.products,
+						pagination: result.data.pagination || {
+							currentPage: 1,
+							totalPages: 1,
+							totalItems: result.data.products.length,
+							itemsPerPage: result.data.products.length,
+						},
+					},
+				};
+			}
+		}
+		
+		// Handle direct array response (like your Hydropack API response)
+		if (Array.isArray(result.data)) {
 			return {
 				data: {
 					products: result.data,
 					pagination: {
-						currentPage: 1,
-						totalPages: 1,
-						totalItems: result.data.length,
+						currentPage: result.currentPage || 1,
+						totalPages: result.totalPages || 1,
+						totalItems: result.totalCount || result.count || result.data.length,
 						itemsPerPage: result.data.length,
 					},
 				},
 			};
-		} else {
-			console.warn("Unexpected API response structure:", result);
-			return {
-				data: {
-					products: [],
-					pagination: {
-						currentPage: 1,
-						totalPages: 0,
-						totalItems: 0,
-						itemsPerPage: 10,
-					},
-				},
-			};
 		}
+
+		console.warn("Unexpected API response structure:", result);
+		return {
+			data: {
+				products: [],
+				pagination: {
+					currentPage: 1,
+					totalPages: 0,
+					totalItems: 0,
+					itemsPerPage: 10,
+				},
+			},
+		};
 	} catch (error) {
 		console.error("Error fetching products:", error);
 		return {
@@ -401,7 +421,7 @@ export async function getContentBySlug(
 }
 
 export async function searchProducts(query: string): Promise<ProductsResponse> {
-	return fetchProducts({ q: query }) as Promise<ProductsResponse>;
+	return fetchProducts({ search: query }) as Promise<ProductsResponse>;
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
@@ -435,11 +455,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 
 export async function getProductCategories(): Promise<string[]> {
 	try {
-		// Instead of trying to access a dedicated categories endpoint that doesn't exist,
-		// we'll extract categories from the products themselves
 		console.log("Fetching products to extract categories...");
-
-		// Fetch products with a higher limit to get a good sample of categories
 		const productsResponse = await fetchProducts({ limit: 100 });
 		const products = productsResponse.data.products;
 
@@ -449,9 +465,9 @@ export async function getProductCategories(): Promise<string[]> {
 			// Extract unique categories from products
 			const categories = products
 				.map((product) => product.kategori)
-				.filter((category): category is string => !!category) // Remove undefined/null
-				.filter((value, index, self) => self.indexOf(value) === index) // Get unique values
-				.sort(); // Sort alphabetically
+				.filter((category): category is string => !!category)
+				.filter((value, index, self) => self.indexOf(value) === index) 
+				.sort(); 
 
 			console.log("Extracted categories:", categories);
 
@@ -460,7 +476,7 @@ export async function getProductCategories(): Promise<string[]> {
 			}
 		}
 
-		// Fallback to default categories if extraction fails or returns empty
+		
 		console.log("Using default categories as fallback");
 		return [
 			"Tenda Camping",

@@ -201,6 +201,16 @@ export default async function ProductsPage({
 
 				<ProductSearch initialQuery={query} />
 				<ProductBanner />
+
+				{/* Show current search query */}
+				{query && (
+					<div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+						<p className="text-sm text-blue-700 dark:text-blue-300">
+							Menampilkan hasil pencarian untuk: <strong>"{query}"</strong>
+						</p>
+					</div>
+				)}
+
 				{/* Sale/Rent Filter Buttons */}
 				<div className="flex flex-wrap gap-2">
 					<Button
