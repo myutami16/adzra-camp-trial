@@ -17,27 +17,34 @@ export const metadata: Metadata = {
 };
 
 export default function JualRentalPage() {
-	const commonBoxStyle = {
-		width: "250px",
+	const boxStyle = {
+		width: "260px",
 		height: "200px",
-		border: "1px solid #ccc",
-		borderRadius: "12px",
+		borderRadius: "14px",
 		display: "flex",
 		justifyContent: "center",
 		alignItems: "center",
 		fontSize: "18px",
-		fontWeight: "bold",
+		fontWeight: 600,
 		cursor: "pointer",
-		textDecoration: "none",
 		color: "white",
-		textTransform: "uppercase",
 		textAlign: "center",
-		padding: "10px",
-		backgroundImage:
-			'url("https://via.placeholder.com/250x200.png?text=Outdoor+Gear")',
-		backgroundSize: "cover",
-		backgroundPosition: "center",
+		textTransform: "uppercase",
+		backgroundColor: "rgb(243, 156, 17)",
+		boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+		transition: "transform 0.2s ease",
 	};
+
+	const hoverEffect = {
+		transform: "scale(1.05)",
+	};
+
+	const links = [
+		{ href: "/form-pembelian", label: "Form Pembelian" },
+		{ href: "/form-persewaan", label: "Form Persewaan" },
+		{ href: "/pricelist", label: "Pricelist" },
+		{ href: "/syarat-ketentuan", label: "Syarat & Ketentuan" },
+	];
 
 	return (
 		<main
@@ -46,34 +53,46 @@ export default function JualRentalPage() {
 				flexDirection: "column",
 				alignItems: "center",
 				minHeight: "100vh",
-				padding: "20px",
-				fontFamily: "sans-serif",
+				padding: "40px 20px",
+				backgroundColor: "#f9f9f9",
+				fontFamily: "var(--font-sans, sans-serif)",
 			}}>
-			<h1 style={{ textAlign: "center", margin: "20px 0 40px 0" }}>
-				{" "}
-				{/* Centered heading with margin */}
-				Kami juga melayani jual-rental alat-alat outdoor
+			<h1 style={{ textAlign: "center", marginBottom: "12px" }}>
+				Layanan Jual & Sewa Peralatan Outdoor
 			</h1>
+			<p
+				style={{
+					textAlign: "center",
+					color: "#555",
+					maxWidth: "600px",
+					marginBottom: "36px",
+				}}>
+				Temukan solusi terbaik untuk kebutuhan camping & aktivitas luar ruangan
+				Anda. Sewa alat gunung untuk perjalanan pendek, atau beli perlengkapan
+				outdoor terbaik untuk jangka panjang.
+			</p>
+
 			<section
 				style={{
 					display: "flex",
 					justifyContent: "center",
-					gap: "25px",
-					marginTop: "30px",
 					flexWrap: "wrap",
+					gap: "24px",
 				}}>
-				<Link href="/form-pembelian" style={{ textDecoration: "none" }}>
-					<div style={commonBoxStyle}>FORM PEMBELIAN</div>
-				</Link>
-				<Link href="/form-persewaan" style={{ textDecoration: "none" }}>
-					<div style={commonBoxStyle}>FORM PERSEWAAN</div>
-				</Link>
-				<Link href="/pricelist" style={{ textDecoration: "none" }}>
-					<div style={commonBoxStyle}>PRICELIST</div>
-				</Link>
-				<Link href="/syarat-ketentuan" style={{ textDecoration: "none" }}>
-					<div style={commonBoxStyle}>SYARAT & KETENTUAN</div>
-				</Link>
+				{links.map(({ href, label }) => (
+					<Link href={href} key={href} style={{ textDecoration: "none" }}>
+						<div
+							style={boxStyle}
+							onMouseOver={(e) =>
+								(e.currentTarget.style.transform = hoverEffect.transform)
+							}
+							onMouseOut={(e) =>
+								(e.currentTarget.style.transform = "scale(1)")
+							}>
+							{label}
+						</div>
+					</Link>
+				))}
 			</section>
 		</main>
 	);
