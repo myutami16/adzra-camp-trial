@@ -36,23 +36,24 @@ export default function ProductCard({ product }: ProductCardProps) {
 	);
 
 	return (
-		<Card className="overflow-hidden border-none shadow-md hover:shadow-lg transition-shadow">
-			<Link href={`/produk/${slug}`}>
-				<div className="relative h-48 sm:h-56">
-					<ImageWithErrorBoundary
-						src={image || "/placeholder.svg?height=300&width=300"}
-						alt={name}
-						fill
-						className="object-cover"
-					/>
-				</div>
-				<CardContent className="p-4">
-					<h3 className="font-medium text-lg mb-2 line-clamp-2">{name}</h3>
-					<p className="text-primary-dark font-semibold dark:text-primary-light">
-						{formatRupiah(price)}
-					</p>
-				</CardContent>
-			</Link>
+		<Card className="overflow-hidden border-none">
+		<Link href={`/produk/${slug}`}>
+			<div className="relative h-[510px] sm:h-[180px] mb-3">
+			<ImageWithErrorBoundary
+				src={image || "/placeholder.svg?height=300&width=300"}
+				alt={name}
+				fill
+				className="object-cover shadow-md hover:shadow-lg transition-shadow"
+			/>
+			</div>
+			<CardContent className="p-4 flex flex-col items-center text-center">
+			<h3 className="font-medium text-lg mb-2 line-clamp-2">{name}</h3>
+			<p className="text-gray-800 font-light dark:text-primary-light">
+				{formatRupiah(price)}
+			</p>
+			</CardContent>
+		</Link>
 		</Card>
+
 	);
 }

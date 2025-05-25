@@ -8,6 +8,7 @@ import ProductSearch from "@/components/product-search";
 import { Button } from "@/components/ui/button";
 import { ShoppingBag, Tent } from "lucide-react";
 import Link from "next/link";
+import ProductBanner from "@/components/Product-Banner";
 
 export const metadata = {
 	title: "Produk - Adzra Camp",
@@ -188,17 +189,18 @@ export default async function ProductsPage({
 	};
 
 	return (
-		<div className="container mx-auto px-4 py-8">
+		<div className="container py-8 max-w-full">
+			
 			<div className="flex flex-col gap-6">
-				<div>
+				{/* <div>
 					<h1 className="text-3xl font-bold mb-2">Produk Kami</h1>
 					<p className="text-gray-600 dark:text-gray-400">
 						Jelajahi berbagai produk camping berkualitas dari Adzra Camp
 					</p>
-				</div>
+				</div> */}
 
 				<ProductSearch initialQuery={query} />
-
+				<ProductBanner />
 				{/* Sale/Rent Filter Buttons */}
 				<div className="flex flex-wrap gap-2">
 					<Button
@@ -226,7 +228,7 @@ export default async function ProductsPage({
 					</Button>
 				</div>
 
-				<div className="grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-8">
+				<div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8">
 					<ProductFilters categories={categories} />
 
 					<div>
