@@ -1,35 +1,42 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import "./globals.css"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
-import { ThemeProvider } from "@/components/theme-provider"
+import type React from "react";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
+import { ThemeProvider } from "@/components/theme-provider";
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Adzra Camp - Camping Equipment Rental & Store",
-  description: "Rental and store for camping equipment in Mojokerto, East Java",
-    generator: 'v0.dev'
-}
+	title: "Adzra Camp - Camping Equipment Rental & Store",
+	description: "Rental and store for camping equipment in Mojokerto, East Java",
+	icons: {
+		icon: "images/logo.png",
+		shortcut: "images/logo.png",
+		apple: "images/logo.png",
+	},
+};
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode
+	children: React.ReactNode;
 }>) {
-  return (
-    <html lang="id" suppressHydrationWarning>
-      <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-          <div className="min-h-screen bg-background text-foreground">
-            <Navbar />
-            <main className="min-h-screen">{children}</main>
-            <Footer />
-          </div>
-        </ThemeProvider>
-      </body>
-    </html>
-  )
+	return (
+		<html lang="id" suppressHydrationWarning>
+			<head>
+				<link rel="icon" href="/adzra-camp.png" type="image/png" />
+			</head>
+			<body className={inter.className}>
+				<ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+					<div className="min-h-screen bg-background text-foreground">
+						<Navbar />
+						<main className="min-h-screen">{children}</main>
+						<Footer />
+					</div>
+				</ThemeProvider>
+			</body>
+		</html>
+	);
 }
