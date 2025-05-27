@@ -115,13 +115,28 @@ export default function EditBannerPage() {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
+		// Reset any previous error states
+		const errors: string[] = [];
+
+		// Validasi lokasi banner (wajib)
 		if (!formData.location) {
+			errors.push("Lokasi banner wajib dipilih");
 			toast.error("Silakan pilih lokasi banner");
+		}
+
+		// Jika ada error validasi, hentikan proses
+		if (errors.length > 0) {
+			console.log("Validation errors:", errors);
+			// Focus ke field yang error
+			if (!formData.location) {
+				document.getElementById("location")?.focus();
+			}
 			return;
 		}
 
 		try {
 			setLoading(true);
+			console.log("Starting banner update process...");
 
 			// Create FormData for API submission
 			const submitData = new FormData();
@@ -129,6 +144,10 @@ export default function EditBannerPage() {
 			// Only append image if a new one was selected
 			if (formData.image) {
 				submitData.append("image", formData.image);
+				console.log("New image selected:", {
+					imageSize: formData.image.size,
+					imageType: formData.image.type,
+				});
 			}
 
 			submitData.append("location", formData.location);
@@ -139,19 +158,24 @@ export default function EditBannerPage() {
 				location: formData.location,
 				isActive: formData.isActive,
 				hasNewImage: !!formData.image,
-				imageSize: formData.image?.size,
-				imageType: formData.image?.type,
 			});
 
-			await updateBanner(bannerId, submitData);
+			// Call API to update banner
+			const result = await updateBanner(bannerId, submitData);
+			console.log("Banner update result:", result);
 
-			toast.success("Banner berhasil diperbarui");
+			// Show success message
+			toast.success("Banner berhasil diperbarui!");
+
+			// Redirect to banner list
 			router.push("/admin/banner");
 		} catch (error) {
 			console.error("Error updating banner:", error);
-			toast.error(
-				error instanceof Error ? error.message : "Gagal memperbarui banner"
-			);
+
+			// Show detailed error message
+			const errorMessage =
+				error instanceof Error ? error.message : "Gagal memperbarui banner";
+			toast.error(`Error: ${errorMessage}`);
 		} finally {
 			setLoading(false);
 		}
@@ -298,13 +322,18 @@ export default function EditBannerPage() {
 
 						{/* Location Selection */}
 						<div className="space-y-2">
-							<Label htmlFor="location">Lokasi Banner *</Label>
+							<Label htmlFor="location" className="text-sm font-medium">
+								Lokasi Banner <span className="text-red-500">*</span>
+							</Label>
 							<Select
 								value={formData.location}
 								onValueChange={(value) =>
 									setFormData((prev) => ({ ...prev, location: value }))
-								}>
-								<SelectTrigger>
+								}
+								required>
+								<SelectTrigger
+									id="location"
+									className={!formData.location ? "border-red-300" : ""}>
 									<SelectValue placeholder="Pilih lokasi banner" />
 								</SelectTrigger>
 								<SelectContent>
@@ -312,6 +341,11 @@ export default function EditBannerPage() {
 									<SelectItem value="productpage">Halaman Produk</SelectItem>
 								</SelectContent>
 							</Select>
+							{!formData.location && (
+								<p className="text-xs text-red-500">
+									* Lokasi banner wajib dipilih
+								</p>
+							)}
 							<p className="text-xs text-gray-500">
 								Maksimal 5 banner per lokasi
 							</p>
@@ -336,8 +370,18 @@ export default function EditBannerPage() {
 
 						{/* Submit Buttons */}
 						<div className="flex gap-4 pt-4">
-							<Button type="submit" disabled={loading}>
-								{loading ? "Menyimpan..." : "Simpan Perubahan"}
+							<Button
+								type="submit"
+								disabled={loading}
+								className="min-w-[140px]">
+								{loading ? (
+									<>
+										<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+										Menyimpan...
+									</>
+								) : (
+									"Simpan Perubahan"
+								)}
 							</Button>
 							<Link href="/admin/banner">
 								<Button type="button" variant="outline" disabled={loading}>

@@ -65,29 +65,40 @@ export default function TambahBannerPage() {
 		setImagePreview(null);
 	};
 
-	// Handle click on upload area
-	const handleUploadAreaClick = () => {
-		if (!imagePreview) {
-			document.getElementById("image")?.click();
-		}
-	};
-
 	// Handle form submission
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
+		// Reset any previous error states
+		const errors: string[] = [];
+
+		// Validasi gambar banner (wajib)
 		if (!formData.image) {
+			errors.push("Gambar banner wajib diisi");
 			toast.error("Silakan pilih gambar banner");
-			return;
 		}
 
+		// Validasi lokasi banner (wajib)
 		if (!formData.location) {
+			errors.push("Lokasi banner wajib dipilih");
 			toast.error("Silakan pilih lokasi banner");
+		}
+
+		// Jika ada error validasi, hentikan proses
+		if (errors.length > 0) {
+			console.log("Validation errors:", errors);
+			// Focus ke field pertama yang error
+			if (!formData.image) {
+				document.getElementById("image")?.focus();
+			} else if (!formData.location) {
+				document.getElementById("location")?.focus();
+			}
 			return;
 		}
 
 		try {
 			setLoading(true);
+			console.log("Starting banner creation process...");
 
 			// Create FormData for API submission
 			const submitData = new FormData();
@@ -102,15 +113,22 @@ export default function TambahBannerPage() {
 				imageType: formData.image.type,
 			});
 
-			await createBanner(submitData);
+			// Call API to create banner
+			const result = await createBanner(submitData);
+			console.log("Banner creation result:", result);
 
-			toast.success("Banner berhasil dibuat");
+			// Show success message
+			toast.success("Banner berhasil dibuat!");
+
+			// Redirect to banner list
 			router.push("/admin/banner");
 		} catch (error) {
 			console.error("Error creating banner:", error);
-			toast.error(
-				error instanceof Error ? error.message : "Gagal membuat banner"
-			);
+
+			// Show detailed error message
+			const errorMessage =
+				error instanceof Error ? error.message : "Gagal membuat banner";
+			toast.error(`Error: ${errorMessage}`);
 		} finally {
 			setLoading(false);
 		}
@@ -143,8 +161,15 @@ export default function TambahBannerPage() {
 					<CardContent className="space-y-6">
 						{/* Image Upload */}
 						<div className="space-y-2">
-							<Label htmlFor="image">Gambar Banner *</Label>
-							<div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+							<Label htmlFor="image" className="text-sm font-medium">
+								Gambar Banner <span className="text-red-500">*</span>
+							</Label>
+							<div
+								className={`border-2 border-dashed rounded-lg p-6 transition-colors ${
+									!formData.image
+										? "border-red-300 bg-red-50"
+										: "border-gray-300"
+								}`}>
 								{imagePreview ? (
 									<div className="relative">
 										<div className="aspect-video relative rounded-lg overflow-hidden">
@@ -165,9 +190,7 @@ export default function TambahBannerPage() {
 										</Button>
 									</div>
 								) : (
-									<div
-										className="text-center cursor-pointer"
-										onClick={handleUploadAreaClick}>
+									<div className="text-center">
 										<Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
 										<div className="space-y-2">
 											<p className="text-sm text-gray-600">
@@ -176,29 +199,39 @@ export default function TambahBannerPage() {
 											<p className="text-xs text-gray-500">
 												Format: JPG, PNG • Maksimal: 500KB
 											</p>
+											{!formData.image && (
+												<p className="text-xs text-red-500">
+													* Gambar banner wajib diisi
+												</p>
+											)}
 										</div>
 									</div>
 								)}
-								{/* Hidden file input - removed absolute positioning */}
 								<Input
 									id="image"
 									type="file"
 									accept="image/jpeg,image/jpg,image/png"
 									onChange={handleImageChange}
-									className="hidden"
+									className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+									required
 								/>
 							</div>
 						</div>
 
 						{/* Location Selection */}
 						<div className="space-y-2">
-							<Label htmlFor="location">Lokasi Banner *</Label>
+							<Label htmlFor="location" className="text-sm font-medium">
+								Lokasi Banner <span className="text-red-500">*</span>
+							</Label>
 							<Select
 								value={formData.location}
 								onValueChange={(value) =>
 									setFormData((prev) => ({ ...prev, location: value }))
-								}>
-								<SelectTrigger>
+								}
+								required>
+								<SelectTrigger
+									id="location"
+									className={!formData.location ? "border-red-300" : ""}>
 									<SelectValue placeholder="Pilih lokasi banner" />
 								</SelectTrigger>
 								<SelectContent>
@@ -206,6 +239,11 @@ export default function TambahBannerPage() {
 									<SelectItem value="productpage">Halaman Produk</SelectItem>
 								</SelectContent>
 							</Select>
+							{!formData.location && (
+								<p className="text-xs text-red-500">
+									* Lokasi banner wajib dipilih
+								</p>
+							)}
 							<p className="text-xs text-gray-500">
 								Maksimal 5 banner per lokasi
 							</p>
