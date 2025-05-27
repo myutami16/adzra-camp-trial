@@ -164,8 +164,9 @@ export default function TambahBannerPage() {
 							<Label htmlFor="image" className="text-sm font-medium">
 								Gambar Banner <span className="text-red-500">*</span>
 							</Label>
+							{/* Fixed upload area with proper relative positioning */}
 							<div
-								className={`border-2 border-dashed rounded-lg p-6 transition-colors ${
+								className={`relative border-2 border-dashed rounded-lg p-6 transition-colors ${
 									!formData.image
 										? "border-red-300 bg-red-50"
 										: "border-gray-300"
@@ -207,6 +208,7 @@ export default function TambahBannerPage() {
 										</div>
 									</div>
 								)}
+								{/* File input positioned absolutely within the upload area only */}
 								<Input
 									id="image"
 									type="file"
