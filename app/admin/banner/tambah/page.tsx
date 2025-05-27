@@ -65,6 +65,13 @@ export default function TambahBannerPage() {
 		setImagePreview(null);
 	};
 
+	// Handle click on upload area
+	const handleUploadAreaClick = () => {
+		if (!imagePreview) {
+			document.getElementById("image")?.click();
+		}
+	};
+
 	// Handle form submission
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -158,7 +165,9 @@ export default function TambahBannerPage() {
 										</Button>
 									</div>
 								) : (
-									<div className="text-center">
+									<div
+										className="text-center cursor-pointer"
+										onClick={handleUploadAreaClick}>
 										<Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
 										<div className="space-y-2">
 											<p className="text-sm text-gray-600">
@@ -170,12 +179,13 @@ export default function TambahBannerPage() {
 										</div>
 									</div>
 								)}
+								{/* Hidden file input - removed absolute positioning */}
 								<Input
 									id="image"
 									type="file"
 									accept="image/jpeg,image/jpg,image/png"
 									onChange={handleImageChange}
-									className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+									className="hidden"
 								/>
 							</div>
 						</div>

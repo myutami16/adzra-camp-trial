@@ -51,7 +51,7 @@ export default async function Home() {
 
 					<div className="basis-1/2 h-full flex items-center justify-center">
 						<img
-							src="Hero/hero1.jpg"
+							src="Hero/hero1.png"
 							alt="HeroImage"
 							className="w-[400px] h-[400px] object-cover"
 						/>

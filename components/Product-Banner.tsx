@@ -12,8 +12,22 @@ import {
 } from "@/components/ui/carousel";
 import { fetchPublicBanners, type PublicBanner } from "@/lib/banner-api";
 
-export default function ProductBanner() {
-	const [banners, setBanners] = useState<PublicBanner[]>([]);
+const ProductBanner = () => {
+	const [ProductBanners, setProductBanners] = useState([
+		{
+			id: 1,
+			name: "Promo Ramadhan",
+			image: "/Banner/banner1.jpg",
+			href: "/promo/ramadhan",
+		},
+		{
+			id: 2,
+			name: "Diskon Spesial",
+			image: "/Banner/banner2.webp",
+			href: "/promo/diskon",
+		},
+	]);
+
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
@@ -21,9 +35,21 @@ export default function ProductBanner() {
 			try {
 				setLoading(true);
 				const bannerData = await fetchPublicBanners("productpage", 5);
-				setBanners(bannerData);
+				if (bannerData.length > 0) {
+					// Transform API data to match existing structure
+					const transformedBanners = bannerData.map(
+						(banner: PublicBanner, index: number) => ({
+							id: index + 1,
+							name: `Product Banner ${index + 1}`,
+							image: banner.image,
+							href: "#", // Default href since API doesn't provide this
+						})
+					);
+					setProductBanners(transformedBanners);
+				}
 			} catch (error) {
 				console.error("Error loading product page banners:", error);
+				// Keep default banners if API fails
 			} finally {
 				setLoading(false);
 			}
@@ -40,32 +66,30 @@ export default function ProductBanner() {
 		);
 	}
 
-	if (banners.length === 0) {
+	if (ProductBanners.length === 0) {
 		return null; // Don't show anything if no banners available
 	}
 
 	return (
-		<div className="w-full max-w-6xl mx-auto px-4 mb-8">
-			<Carousel className="w-full">
-				<CarouselContent>
-					{banners.map((banner, index) => (
-						<CarouselItem key={banner._id}>
-							<Card className="border-0 shadow-lg overflow-hidden">
-								<div className="aspect-video relative">
-									<Image
-										src={banner.image || "/placeholder.svg"}
-										alt={`Product Page Banner ${index + 1}`}
-										fill
-										className="object-cover"
-										sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
-										priority={index === 0} // Prioritize first banner for LCP
-									/>
-								</div>
-							</Card>
+		<div className="w-full h-[600px] mb-8">
+			<Carousel className="w-full h-full">
+				<CarouselContent className="h-full">
+					{ProductBanners.map((banner, index) => (
+						<CarouselItem key={banner.id} className="h-full">
+							<div className="relative w-full h-full">
+								<Image
+									src={banner.image || "/placeholder.svg"}
+									alt={`Product Page Banner ${index + 1}`}
+									fill
+									className="object-cover"
+									sizes="100vw"
+									priority={index === 0}
+								/>
+							</div>
 						</CarouselItem>
 					))}
 				</CarouselContent>
-				{banners.length > 1 && (
+				{ProductBanners.length > 1 && (
 					<>
 						<CarouselPrevious className="left-4" />
 						<CarouselNext className="right-4" />
@@ -74,4 +98,6 @@ export default function ProductBanner() {
 			</Carousel>
 		</div>
 	);
-}
+};
+
+export default ProductBanner;
