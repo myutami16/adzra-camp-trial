@@ -5,8 +5,12 @@ import Link from "next/link"
 import Image from "next/image"
 import { Menu, X } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { Montserrat } from "next/font/google"
+
+  const monstserrat = Montserrat({ subsets: ["latin"] });
 
 const Navbar = () => {
+
   const [isOpen, setIsOpen] = useState(false)
 
   const toggleMenu = () => {
@@ -20,10 +24,14 @@ const Navbar = () => {
         <div className="flex justify-between items-center">
           <Link href="/" className="flex items-center">
             <Image src="/images/logo.png" alt="Adzra Camp Logo" width={80} height={80} className="h-16 w-auto" />
+            <div className={`${monstserrat.className}flex flex-col justify-center text-center`}>
+            <h1 className="text-xl font-bold">Adzra Camping</h1>
+            <p className="text-lg font-extralight tracking-extra-widest uppercase">equipment</p>
+            </div>
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex space-x-10 items-center font-extralight">
+          <div className="hidden md:flex space-x-10 items-center font-semibold">
             <Link
               href="/"
               className=" py-3 text-gray-800 dark:text-gray-200 hover:text-green-600 hover:border-b-2 hover:border-green-600 dark:hover:text-primary-light"

@@ -43,7 +43,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 				src={image || "/placeholder.svg?height=300&width=300"}
 				alt={name}
 				fill
-				className="object-cover shadow-md hover:shadow-lg transition-shadow"
+				className="object-cover transition-transform duration-300 ease-in-out hover:scale-105 hover:brightness-110"
 			/>
 			</div>
 			<CardContent className="p-4 flex flex-col items-center text-center">
@@ -54,6 +54,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 			</CardContent>
 		</Link>
 		</Card>
+
 
 	);
 }

@@ -113,14 +113,14 @@ export default function AboutPage() {
                 <Mail className="h-6 w-6 text-primary-dark shrink-0 mt-1" />
                 <div>
                   <h3 className="font-semibold mb-2">Email</h3>
-                  <p className="text-gray-600">info@adzracamp.com</p>
+                  <p className="text-gray-600">adzracampingequipment@gmail.com</p>
                 </div>
               </div>
             </div>
 
             <div className="h-[300px] rounded-lg overflow-hidden">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3954.5690069099!2d112.5453!3d-7.6123!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7874c1e9e4b3b3%3A0x3b3b7f5f5e5e5e5e!2sAdzra%20Camp!5e0!3m2!1sen!2sid!4v1621234567890!5m2!1sen!2sid"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3954.694652981874!2d112.52617497500319!3d-7.6081683924069745!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e787795231cfd2f%3A0x755a0004cd64481a!2sRental%20Tenda%20%22Adzra%20Camping%20Equipment%22!5e0!3m2!1sen!2sid!4v1748606696489!5m2!1sen!2sid"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}

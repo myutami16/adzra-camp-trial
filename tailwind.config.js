@@ -17,6 +17,10 @@ module.exports = {
       },
     },
     extend: {
+      letterSpacing: {
+        'extra-widest': '0.25em',
+        'super-widest': '0.4em',
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

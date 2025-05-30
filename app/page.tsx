@@ -7,11 +7,15 @@ import ProductCard from "@/components/product-card";
 import BlogCard from "@/components/blog-card";
 import BannerSlider from "@/components/BannerSlide";
 import { fetchProducts, fetchContent } from "@/lib/api";
+import { Montserrat } from "next/font/google";
 
+	const monstserrat = Montserrat({ subsets: ["latin"] });
 export default async function Home() {
 	// Fetch featured products and blog posts
 	const productsData = await fetchProducts({ limit: 4 });
 	const blogData = await fetchContent({ limit: 3 });
+
+	
 
 	return (
 		<div className="flex flex-col min-h-screen overflow-x-hidden">
@@ -25,7 +29,7 @@ export default async function Home() {
 					<div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
 						{/* Text Content */}
 						<div className="flex-1 text-center lg:text-left space-y-6">
-							<h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
+							<h1 className={`${monstserrat.className} text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight`}>
 								Peralatan Camping Berkualitas untuk Petualangan Anda
 							</h1>
 							<p className="text-base md:text-lg lg:text-xl text-gray-200 max-w-2xl mx-auto lg:mx-0">
@@ -137,7 +141,7 @@ export default async function Home() {
 			<section className="py-16 bg-gray-50 dark:bg-gray-500 overflow-hidden">
 				<div className="container mx-auto px-4">
 					<div className="text-center mb-12">
-						<h2 className="text-2xl md:text-3xl font-bold mb-4">
+						<h2 className={`${monstserrat.className} text-2xl md:text-3xl font-bold mb-4`}>
 							Layanan Kami
 						</h2>
 						<p className="text-gray-600 max-w-2xl mx-auto dark:text-gray-300">
@@ -150,7 +154,7 @@ export default async function Home() {
 						<Card className="overflow-hidden border-none shadow-lg dark:bg-gray-800">
 							<div className="relative h-48 md:h-56">
 								<Image
-									src="/images/rental-service.jpg"
+									src="/images/rental-service.png"
 									alt="Rental Service"
 									fill
 									className="object-cover"
@@ -160,7 +164,7 @@ export default async function Home() {
 								<div className="flex flex-col">
 									<div className="flex items-center mb-4">
 										<Tent className="h-5 w-5 md:h-6 md:w-6 text-primary-dark mr-2" />
-										<h3 className="text-lg md:text-xl font-semibold">
+										<h3 className={`${monstserrat.className} text-lg md:text-xl font-semibold`}>
 											Persewaan Peralatan
 										</h3>
 									</div>
@@ -185,7 +189,7 @@ export default async function Home() {
 						<Card className="overflow-hidden border-none shadow-lg dark:bg-gray-800">
 							<div className="relative h-48 md:h-56">
 								<Image
-									src="/images/store-service.jpg"
+									src="/images/store-service.png"
 									alt="Store Service"
 									fill
 									className="object-cover"
@@ -195,7 +199,7 @@ export default async function Home() {
 								<div className="flex flex-col">
 									<div className="flex items-center mb-4">
 										<ShoppingBag className="h-5 w-5 md:h-6 md:w-6 text-primary-dark mr-2" />
-										<h3 className="text-lg md:text-xl font-semibold">
+										<h3 className={`${monstserrat.className} text-lg md:text-xl font-semibold`}>
 											Toko Peralatan
 										</h3>
 									</div>
@@ -222,7 +226,7 @@ export default async function Home() {
 			<section className="py-16 bg-white dark:bg-gray-500 overflow-hidden">
 				<div className="container mx-auto px-4">
 					<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-						<h2 className="text-2xl md:text-3xl font-bold">Produk Unggulan</h2>
+						<h2 className={`${monstserrat.className} text-2xl md:text-3xl font-bold`}>Produk Unggulan</h2>
 						<Link
 							href="/produk"
 							className="text-primary-dark hover:underline font-medium text-sm md:text-base">
@@ -243,7 +247,7 @@ export default async function Home() {
 			<section className="py-16 bg-primary-dark text-white dark:bg-gray-800 overflow-hidden">
 				<div className="container mx-auto px-4">
 					<div className="text-center mb-12">
-						<h2 className="text-2xl md:text-3xl font-bold mb-4">
+						<h2 className={`${monstserrat.className} text-2xl md:text-3xl font-bold mb-4`}>
 							Apa Kata Mereka?
 						</h2>
 						<p className="text-gray-300 max-w-2xl mx-auto">
@@ -338,7 +342,7 @@ export default async function Home() {
 			<section className="py-16 bg-white dark:bg-gray-500 overflow-hidden">
 				<div className="container mx-auto px-4">
 					<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-						<h2 className="text-2xl md:text-3xl font-bold">Blog Terbaru</h2>
+						<h2 className={`${monstserrat.className} text-2xl md:text-3xl font-bold`}>Blog Terbaru</h2>
 						<Link
 							href="/blog"
 							className="text-primary-dark hover:underline font-medium text-sm md:text-base">
@@ -357,7 +361,7 @@ export default async function Home() {
 			{/* CTA Section */}
 			<section className="py-16 bg-accent dark:bg-yellow-800 overflow-hidden">
 				<div className="container mx-auto px-4 text-center">
-					<h2 className="text-2xl md:text-3xl font-bold text-white mb-6">
+					<h2 className={`${monstserrat.className} text-2xl md:text-3xl font-bold text-white mb-6`}>
 						Siap Untuk Petualangan Berikutnya?
 					</h2>
 					<p className="text-white text-base md:text-lg mb-8 max-w-2xl mx-auto">
