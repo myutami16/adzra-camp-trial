@@ -7,6 +7,7 @@ import { Menu, X } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Montserrat } from "next/font/google"
 
+
   const monstserrat = Montserrat({ subsets: ["latin"] });
 
 const Navbar = () => {
@@ -24,7 +25,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center">
           <Link href="/" className="flex items-center">
             <Image src="/images/logo.png" alt="Adzra Camp Logo" width={80} height={80} className="h-16 w-auto" />
-            <div className={`${monstserrat.className}flex flex-col justify-center text-center`}>
+            <div className={`flex flex-col justify-center text-center`} style={{ fontFamily: 'Poppins, sans-serif' }}>
             <h1 className="text-xl font-bold">Adzra Camping</h1>
             <p className="text-lg font-extralight tracking-extra-widest uppercase">equipment</p>
             </div>
