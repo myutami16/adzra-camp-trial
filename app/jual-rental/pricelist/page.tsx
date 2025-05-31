@@ -16,67 +16,24 @@ export default function PricelistPage() {
         </div>
 
         <Tabs defaultValue="tenda" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="tenda">Tenda & Flysheet</TabsTrigger>
-            <TabsTrigger value="cooking">Cooking Set</TabsTrigger>
-            <TabsTrigger value="carrier">Carrier & Sleeping</TabsTrigger>
-            <TabsTrigger value="accessories">Accessories</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 gap-2">
+            <TabsTrigger
+              value="tenda"
+              className="text-center px-2 py-2 text-sm md:text-base">Tenda & Flysheet</TabsTrigger>
+            <TabsTrigger
+              value="cooking"
+              className="text-center px-2 py-2 text-sm md:text-base"
+            >
+              Cooking Set
+            </TabsTrigger>
           </TabsList>
+
+    
 
           <TabsContent value="tenda" className="mt-6">
             <div className="rounded-lg overflow-hidden">
               <Image src="/images/pricelist1.jpg" alt="Pricelist Tenda" width={800} height={1000} className="w-full" />
-            </div>
-
-            <div className="mt-8 space-y-4">
-              <h3 className="text-xl font-semibold">Tenda Camping dan Similiar</h3>
-
-              <div className="space-y-2">
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Tenda Dome Kapasitas 4 Orang</span>
-                  <span className="font-semibold">Rp. 40.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Tenda Dome Kapasitas 2 Orang</span>
-                  <span className="font-semibold">Rp. 30.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Tenda Dome Melano Kap. 4-5 orang</span>
-                  <span className="font-semibold">Rp. 60.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Lampu Tenda Baterai</span>
-                  <span className="font-semibold">Rp. 10.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Lampu Tenda USB Charger</span>
-                  <span className="font-semibold">Rp. 5.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Lampu Tumblr</span>
-                  <span className="font-semibold">Rp. 10.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Matras</span>
-                  <span className="font-semibold">Rp. 3.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Matras Allumunium</span>
-                  <span className="font-semibold">Rp. 5.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Terpal 4 x 3 m</span>
-                  <span className="font-semibold">Rp. 40.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Flysheet</span>
-                  <span className="font-semibold">Rp. 15.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Tongkat Flysheet</span>
-                  <span className="font-semibold">Rp. 10.000</span>
-                </div>
-              </div>
+            
             </div>
           </TabsContent>
 
@@ -89,161 +46,6 @@ export default function PricelistPage() {
                 height={1000}
                 className="w-full"
               />
-            </div>
-
-            <div className="mt-8 space-y-4">
-              <h3 className="text-xl font-semibold">Cooking and Similar</h3>
-
-              <div className="space-y-2">
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Cooking Set Besar</span>
-                  <span className="font-semibold">Rp. 15.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Cooking Set Kecil</span>
-                  <span className="font-semibold">Rp. 10.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Paket Teko dan Gelas</span>
-                  <span className="font-semibold">Rp. 10.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Kompor</span>
-                  <span className="font-semibold">Rp. 10.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Kompor Windproof</span>
-                  <span className="font-semibold">Rp. 10.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Kompor Koper</span>
-                  <span className="font-semibold">Rp. 20.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Grill Pan</span>
-                  <span className="font-semibold">Rp. 15.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Paket Coffe Maker (Moka Pot, Grinder, Gelas 2 pcs)</span>
-                  <span className="font-semibold">Rp. 20.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Paket Kompor Koper & Grill Pan</span>
-                  <span className="font-semibold">Rp. 30.000</span>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="carrier" className="mt-6">
-            <div className="mt-8 space-y-4">
-              <h3 className="text-xl font-semibold">Carrier and Similar</h3>
-
-              <div className="space-y-2">
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Carrier 45L</span>
-                  <span className="font-semibold">Rp. 15.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Carrier 60L</span>
-                  <span className="font-semibold">Rp. 20.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Cover Bag</span>
-                  <span className="font-semibold">Rp. 5.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Hydropack</span>
-                  <span className="font-semibold">Rp. 15.000</span>
-                </div>
-              </div>
-
-              <h3 className="text-xl font-semibold mt-8">Sleeping Kit</h3>
-
-              <div className="space-y-2">
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Sleeping Bag</span>
-                  <span className="font-semibold">Rp. 10.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Sleepingpad Pillow</span>
-                  <span className="font-semibold">Rp. 20.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Lazy Bag</span>
-                  <span className="font-semibold">Rp. 20.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Hammock</span>
-                  <span className="font-semibold">Rp. 10.000</span>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="accessories" className="mt-6">
-            <div className="mt-8 space-y-4">
-              <h3 className="text-xl font-semibold">Summit Kit</h3>
-
-              <div className="space-y-2">
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Trekking Pole</span>
-                  <span className="font-semibold">Rp. 10.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Headlamp Baterai</span>
-                  <span className="font-semibold">Rp. 10.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Headlamp USB Charger</span>
-                  <span className="font-semibold">Rp. 5.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Senter</span>
-                  <span className="font-semibold">Rp. 10.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Sarung Tangan</span>
-                  <span className="font-semibold">Rp. 5.000</span>
-                </div>
-              </div>
-
-              <h3 className="text-xl font-semibold mt-8">Chill Kit</h3>
-
-              <div className="space-y-2">
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Kursi Lipat Mini</span>
-                  <span className="font-semibold">Rp. 5.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Kursi Lipat Biasa</span>
-                  <span className="font-semibold">Rp. 10.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Kursi Lipat Santai</span>
-                  <span className="font-semibold">Rp. 20.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Meja Lipat Mini</span>
-                  <span className="font-semibold">Rp. 5.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Meja Lipat Biasa</span>
-                  <span className="font-semibold">Rp. 20.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Meja Lipat Panjang</span>
-                  <span className="font-semibold">Rp. 30.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Stand Api Unggun</span>
-                  <span className="font-semibold">Rp. 15.000</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span>Tripod</span>
-                  <span className="font-semibold">Rp. 15.000</span>
-                </div>
-              </div>
             </div>
           </TabsContent>
         </Tabs>

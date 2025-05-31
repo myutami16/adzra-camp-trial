@@ -38,7 +38,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 	return (
 		<Card className="overflow-hidden border-none">
 		<Link href={`/produk/${slug}`}>
-			<div className="relative h-[510px] sm:h-[180px] mb-3">
+			<div className="relative aspect-square w-full mb-3">
 			<ImageWithErrorBoundary
 				src={image || "/placeholder.svg?height=300&width=300"}
 				alt={name}
@@ -47,7 +47,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 			/>
 			</div>
 			<CardContent className="p-4 flex flex-col items-center text-center">
-			<h3 className="font-medium text-lg mb-2 line-clamp-2">{name}</h3>
+			<h3 className="font-medium text-sm sm:text-lg mb-2 line-clamp-2 min-h-[3.5rem]">{name}</h3>
 			<p className="text-gray-800 font-light dark:text-primary-light">
 				{formatRupiah(price)}
 			</p>

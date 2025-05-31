@@ -85,34 +85,34 @@ const BannerSlider = () => {
 		return null; // Don't show anything if no banners available
 	}
 
-	return (
-		<div className="w-full h-[600px] mb-8">
-			<Carousel className="w-full h-full">
-				<CarouselContent className="h-full">
-					{displayBanners.map((banner, index) => (
-						<CarouselItem key={banner.id} className="h-full">
-							<div className="relative w-full h-full">
-								<Image
-									src={banner.image || "/placeholder.svg"}
-									alt={`Homepage Banner ${index + 1}`}
-									fill
-									className="object-cover"
-									sizes="100vw"
-									priority={index === 0}
-								/>
-							</div>
-						</CarouselItem>
-					))}
-				</CarouselContent>
-				{displayBanners.length > 1 && (
-					<>
-						<CarouselPrevious className="left-4" />
-						<CarouselNext className="right-4" />
-					</>
-				)}
-			</Carousel>
-		</div>
-	);
-};
+return (
+	<div className="w-full aspect-[16/9] mb-8">
+		<Carousel className="w-full h-full">
+			<CarouselContent className="h-full">
+				{displayBanners.map((banner, index) => (
+					<CarouselItem key={banner.id} className="h-full">
+						<div className="relative w-full h-full">
+							<Image
+								src={banner.image || "/placeholder.svg"}
+								alt={`Homepage Banner ${index + 1}`}
+								fill
+								className="object-cover"
+								sizes="100vw"
+								priority={index === 0}
+							/>
+						</div>
+					</CarouselItem>
+				))}
+			</CarouselContent>
+			{displayBanners.length > 1 && (
+				<>
+					<CarouselPrevious className="left-4" />
+					<CarouselNext className="right-4" />
+				</>
+			)}
+		</Carousel>
+	</div>
+);
 
+}
 export default BannerSlider;

@@ -71,7 +71,7 @@ const ProductBanner = () => {
 	}
 
 	return (
-		<div className="w-full h-[600px] mb-8">
+		<div className="w-full aspect-[16/9] mb-8">
 			<Carousel className="w-full h-full">
 				<CarouselContent className="h-full">
 					{ProductBanners.map((banner, index) => (
