@@ -106,9 +106,16 @@ export default function EditBannerPage() {
 	};
 
 	// Remove selected image (revert to original)
-	const removeImage = () => {
+	const removeImage = (e: React.MouseEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
 		setFormData((prev) => ({ ...prev, image: null }));
 		setImagePreview(banner?.image || null);
+		// Reset the file input
+		const fileInput = document.getElementById("image") as HTMLInputElement;
+		if (fileInput) {
+			fileInput.value = "";
+		}
 	};
 
 	// Handle form submission
@@ -274,7 +281,7 @@ export default function EditBannerPage() {
 						{/* Image Upload */}
 						<div className="space-y-2">
 							<Label htmlFor="image">Ganti Gambar Banner (Opsional)</Label>
-							<div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+							<div className="relative border-2 border-dashed border-gray-300 rounded-lg p-6">
 								{formData.image ? (
 									<div className="relative">
 										<div className="aspect-video relative rounded-lg overflow-hidden">
@@ -289,7 +296,7 @@ export default function EditBannerPage() {
 											type="button"
 											variant="destructive"
 											size="sm"
-											className="absolute top-2 right-2"
+											className="absolute top-2 right-2 z-10"
 											onClick={removeImage}>
 											<X className="h-4 w-4" />
 										</Button>
@@ -310,13 +317,16 @@ export default function EditBannerPage() {
 										</div>
 									</div>
 								)}
-								<Input
-									id="image"
-									type="file"
-									accept="image/jpeg,image/jpg,image/png"
-									onChange={handleImageChange}
-									className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-								/>
+								{/* File input positioned to only cover upload area when no new image is selected */}
+								{!formData.image && (
+									<Input
+										id="image"
+										type="file"
+										accept="image/jpeg,image/jpg,image/png"
+										onChange={handleImageChange}
+										className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+									/>
+								)}
 							</div>
 						</div>
 

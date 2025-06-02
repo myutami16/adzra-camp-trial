@@ -60,9 +60,16 @@ export default function TambahBannerPage() {
 	};
 
 	// Remove selected image
-	const removeImage = () => {
+	const removeImage = (e: React.MouseEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
 		setFormData((prev) => ({ ...prev, image: null }));
 		setImagePreview(null);
+		// Reset the file input
+		const fileInput = document.getElementById("image") as HTMLInputElement;
+		if (fileInput) {
+			fileInput.value = "";
+		}
 	};
 
 	// Handle form submission
@@ -164,7 +171,7 @@ export default function TambahBannerPage() {
 							<Label htmlFor="image" className="text-sm font-medium">
 								Gambar Banner <span className="text-red-500">*</span>
 							</Label>
-							{/* Fixed upload area with proper relative positioning */}
+							{/* Fixed upload area with proper event handling */}
 							<div
 								className={`relative border-2 border-dashed rounded-lg p-6 transition-colors ${
 									!formData.image
@@ -185,7 +192,7 @@ export default function TambahBannerPage() {
 											type="button"
 											variant="destructive"
 											size="sm"
-											className="absolute top-2 right-2"
+											className="absolute top-2 right-2 z-10"
 											onClick={removeImage}>
 											<X className="h-4 w-4" />
 										</Button>
@@ -208,15 +215,17 @@ export default function TambahBannerPage() {
 										</div>
 									</div>
 								)}
-								{/* File input positioned absolutely within the upload area only */}
-								<Input
-									id="image"
-									type="file"
-									accept="image/jpeg,image/jpg,image/png"
-									onChange={handleImageChange}
-									className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-									required
-								/>
+								{/* File input positioned to only cover upload area when no image is selected */}
+								{!imagePreview && (
+									<Input
+										id="image"
+										type="file"
+										accept="image/jpeg,image/jpg,image/png"
+										onChange={handleImageChange}
+										className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+										required
+									/>
+								)}
 							</div>
 						</div>
 
