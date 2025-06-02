@@ -681,7 +681,7 @@ export async function fetchBanners(
 			queryParams.append("isActive", params.isActive.toString());
 		if (params.page) queryParams.append("page", params.page.toString());
 
-		const url = `${API_BASE_URL}/banner${
+		const url = `${API_BASE_URL}/banners${
 			queryParams.toString() ? `?${queryParams.toString()}` : ""
 		}`;
 		console.log("Fetching banners from:", url);
@@ -755,7 +755,7 @@ export async function getBannerLocations(): Promise<BannerLocationsResponse> {
 	try {
 		console.log("Fetching banner locations");
 
-		const url = `${API_BASE_URL}/banner?path=locations`;
+		const url = `${API_BASE_URL}/banners?path=locations`;
 		console.log("Banner locations URL:", url);
 
 		const response = await fetch(url, {

@@ -1036,7 +1036,7 @@ export const fetchAdminBanners = async (params = {}) => {
 			console.log("Trying public banner endpoint");
 
 			try {
-				const response = await fetch(`${API_BASE_URL}/banner`, {
+				const response = await fetch(`${API_BASE_URL}/banners`, {
 					next: { revalidate: 0 },
 					cache: "no-store",
 				});
@@ -1184,7 +1184,7 @@ export const updateBanner = async (id: number | string, formData: FormData) => {
 			// Try fallback endpoint
 			console.log("First update attempt failed, trying fallback endpoint");
 			const fallbackResponse = await fetch(
-				`${API_BASE_URL}/admin/banner/${id}`,
+				`${API_BASE_URL}/admin/Banner/${id}`,
 				{
 					method: "PUT",
 					headers: {
@@ -1241,7 +1241,7 @@ export const deleteBanner = async (id: number | string) => {
 
 			// Try fallback endpoint
 			try {
-				const fallbackResult = await fetchWithAuth(`/admin/banner/${id}`, {
+				const fallbackResult = await fetchWithAuth(`/admin/Banner/${id}`, {
 					method: "DELETE",
 				});
 				console.log(
