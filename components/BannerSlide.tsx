@@ -10,7 +10,7 @@ import {
 	CarouselNext,
 	CarouselPrevious,
 } from "@/components/ui/carousel";
-import { fetchPublicBanners, type PublicBanner } from "@/lib/banner-api";
+import { fetchBanners, type PublicBanner } from "@/lib/api";
 
 const BannerSlider = () => {
 	const [banners, setBanners] = useState([
@@ -31,7 +31,7 @@ const BannerSlider = () => {
 	useEffect(() => {
 		const loadBanners = async () => {
 			try {
-				const bannerData = await fetchPublicBanners("homepage", 5);
+				const bannerData = await fetchBanners("homepage", 5);
 				if (bannerData.length > 0) {
 					// Transform API data to match existing structure
 					const transformedBanners = bannerData.map(
@@ -85,34 +85,33 @@ const BannerSlider = () => {
 		return null; // Don't show anything if no banners available
 	}
 
-return (
-	<div className="w-full aspect-[16/9] mb-8">
-		<Carousel className="w-full h-full">
-			<CarouselContent className="h-full">
-				{displayBanners.map((banner, index) => (
-					<CarouselItem key={banner.id} className="h-full">
-						<div className="relative w-full h-full">
-							<Image
-								src={banner.image || "/placeholder.svg"}
-								alt={`Homepage Banner ${index + 1}`}
-								fill
-								className="object-cover"
-								sizes="100vw"
-								priority={index === 0}
-							/>
-						</div>
-					</CarouselItem>
-				))}
-			</CarouselContent>
-			{displayBanners.length > 1 && (
-				<>
-					<CarouselPrevious className="left-4" />
-					<CarouselNext className="right-4" />
-				</>
-			)}
-		</Carousel>
-	</div>
-);
-
-}
+	return (
+		<div className="w-full aspect-[16/9] mb-8">
+			<Carousel className="w-full h-full">
+				<CarouselContent className="h-full">
+					{displayBanners.map((banner, index) => (
+						<CarouselItem key={banner.id} className="h-full">
+							<div className="relative w-full h-full">
+								<Image
+									src={banner.image || "/placeholder.svg"}
+									alt={`Homepage Banner ${index + 1}`}
+									fill
+									className="object-cover"
+									sizes="100vw"
+									priority={index === 0}
+								/>
+							</div>
+						</CarouselItem>
+					))}
+				</CarouselContent>
+				{displayBanners.length > 1 && (
+					<>
+						<CarouselPrevious className="left-4" />
+						<CarouselNext className="right-4" />
+					</>
+				)}
+			</Carousel>
+		</div>
+	);
+};
 export default BannerSlider;

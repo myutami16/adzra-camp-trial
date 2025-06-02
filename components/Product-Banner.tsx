@@ -10,7 +10,7 @@ import {
 	CarouselNext,
 	CarouselPrevious,
 } from "@/components/ui/carousel";
-import { fetchPublicBanners, type PublicBanner } from "@/lib/banner-api";
+import { fetchBanners, type PublicBanner } from "@/lib/api";
 
 const ProductBanner = () => {
 	const [ProductBanners, setProductBanners] = useState([
@@ -34,7 +34,7 @@ const ProductBanner = () => {
 		const loadBanners = async () => {
 			try {
 				setLoading(true);
-				const bannerData = await fetchPublicBanners("productpage", 5);
+				const bannerData = await fetchBanners("productpage", 5);
 				if (bannerData.length > 0) {
 					// Transform API data to match existing structure
 					const transformedBanners = bannerData.map(
