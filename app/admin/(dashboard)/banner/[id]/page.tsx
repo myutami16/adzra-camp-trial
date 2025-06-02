@@ -27,6 +27,7 @@ import { toast } from "sonner";
 interface Banner {
 	id: string;
 	image: string;
+	cloudinary_id?: string;
 	location: "homepage" | "productpage";
 	isActive: boolean;
 	createdAt: string;
@@ -57,10 +58,14 @@ export default function EditBannerPage() {
 				const bannerData = await getBannerById(bannerId);
 				console.log("Banner data received:", bannerData);
 
+				if (!bannerData || !bannerData.id) {
+					throw new Error("Banner not found or invalid data received");
+				}
+
 				setBanner(bannerData);
 				setFormData({
-					location: bannerData.location,
-					isActive: bannerData.isActive,
+					location: bannerData.location || "",
+					isActive: bannerData.isActive ?? true,
 					image: null, // Keep null since we're not changing the image initially
 				});
 				setImagePreview(bannerData.image); // Show current image as preview

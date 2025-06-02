@@ -109,15 +109,17 @@ export default function TambahBannerPage() {
 
 			// Create FormData for API submission
 			const submitData = new FormData();
-			submitData.append("image", formData.image);
+			if (formData.image) {
+				submitData.append("image", formData.image);
+			}
 			submitData.append("location", formData.location);
 			submitData.append("isActive", formData.isActive.toString());
 
 			console.log("Submitting banner data:", {
 				location: formData.location,
 				isActive: formData.isActive,
-				imageSize: formData.image.size,
-				imageType: formData.image.type,
+				imageSize: formData.image?.size,
+				imageType: formData.image?.type,
 			});
 
 			// Call API to create banner
@@ -280,7 +282,14 @@ export default function TambahBannerPage() {
 						{/* Submit Buttons */}
 						<div className="flex gap-4 pt-4">
 							<Button type="submit" disabled={loading}>
-								{loading ? "Menyimpan..." : "Simpan Banner"}
+								{loading ? (
+									<>
+										<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+										Menyimpan...
+									</>
+								) : (
+									"Simpan Banner"
+								)}
 							</Button>
 							<Link href="/admin/banner">
 								<Button type="button" variant="outline" disabled={loading}>

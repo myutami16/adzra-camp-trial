@@ -58,7 +58,31 @@ export interface ContentResponse {
 	};
 }
 
-// Updated fetchProducts function with consistent search parameter handling
+export interface Banner {
+	id: number | string;
+	image: string;
+	cloudinary_id?: string;
+	location: "homepage" | "productpage";
+	isActive: boolean;
+	createdAt: string;
+}
+
+export interface BannersResponse {
+	success: boolean;
+	count: number;
+	location?: string;
+	data: Banner[];
+}
+
+export interface BannerLocationsResponse {
+	success: boolean;
+	count: number;
+	data: Array<{
+		location: string;
+		count: number;
+	}>;
+}
+
 export async function fetchProducts(
 	params: {
 		page?: number;
@@ -259,7 +283,6 @@ export async function fetchProducts(
 	}
 }
 
-// Update the fetchContent function with better error handling
 export async function fetchContent(
 	params: {
 		page?: number;
@@ -381,7 +404,6 @@ export async function fetchContent(
 	}
 }
 
-// Update getContentBySlug to handle errors better and provide fallback content
 export async function getContentBySlug(
 	slug: string
 ): Promise<ContentItem | null> {
@@ -497,7 +519,6 @@ export async function getContentBySlug(
 	}
 }
 
-// Updated searchProducts function to use 'search' parameter
 export async function searchProducts(query: string): Promise<ProductsResponse> {
 	return fetchProducts({ search: query }) as Promise<ProductsResponse>;
 }
@@ -533,11 +554,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 
 export async function getProductCategories(): Promise<string[]> {
 	try {
-		// Instead of trying to access a dedicated categories endpoint that doesn't exist,
-		// we'll extract categories from the products themselves
 		console.log("Fetching products to extract categories...");
-
-		// Fetch products with a higher limit to get a good sample of categories
 		const productsResponse = await fetchProducts({ limit: 100 });
 		const products = productsResponse.data.products;
 
@@ -547,9 +564,9 @@ export async function getProductCategories(): Promise<string[]> {
 			// Extract unique categories from products
 			const categories = products
 				.map((product) => product.kategori)
-				.filter((category): category is string => !!category) // Remove undefined/null
-				.filter((value, index, self) => self.indexOf(value) === index) // Get unique values
-				.sort(); // Sort alphabetically
+				.filter((category): category is string => !!category)
+				.filter((value, index, self) => self.indexOf(value) === index)
+				.sort();
 
 			console.log("Extracted categories:", categories);
 
@@ -643,6 +660,222 @@ export async function fetchAdminStats() {
 			productCount: 0,
 			contentCount: 0,
 			userCount: 0,
+		};
+	}
+}
+
+export async function fetchBanners(
+	params: {
+		location?: "homepage" | "productpage";
+		limit?: number;
+		isActive?: boolean;
+		page?: number;
+	} = {}
+): Promise<{ data: { banners: Banner[]; pagination: any } }> {
+	try {
+		const queryParams = new URLSearchParams();
+
+		if (params.location) queryParams.append("location", params.location);
+		if (params.limit) queryParams.append("limit", params.limit.toString());
+		if (params.isActive !== undefined)
+			queryParams.append("isActive", params.isActive.toString());
+		if (params.page) queryParams.append("page", params.page.toString());
+
+		const url = `${API_BASE_URL}/banner${
+			queryParams.toString() ? `?${queryParams.toString()}` : ""
+		}`;
+		console.log("Fetching banners from:", url);
+
+		const response = await fetch(url, {
+			next: { revalidate: 0 },
+			cache: "no-store",
+		});
+
+		if (!response.ok) {
+			throw new Error(`Failed to fetch banners: ${response.status}`);
+		}
+
+		const result = await response.json();
+		console.log("Banners API response:", result);
+
+		// Handle the API response structure
+		if (result.success && Array.isArray(result.data)) {
+			const banners = result.data.map((item: any) => ({
+				id: item._id || item.id,
+				image: item.image,
+				cloudinary_id: item.cloudinary_id,
+				location: item.location,
+				isActive: item.isActive,
+				createdAt: item.createdAt,
+			}));
+
+			return {
+				data: {
+					banners: banners,
+					pagination: {
+						currentPage: result.currentPage || 1,
+						totalPages: result.totalPages || 1,
+						totalItems: result.totalCount || result.count || banners.length,
+						itemsPerPage: banners.length,
+					},
+				},
+			};
+		}
+
+		console.warn("Unexpected API response structure:", result);
+		return {
+			data: {
+				banners: [],
+				pagination: {
+					currentPage: 1,
+					totalPages: 0,
+					totalItems: 0,
+					itemsPerPage: 10,
+				},
+			},
+		};
+	} catch (error) {
+		console.error("Error fetching banners:", error);
+		return {
+			data: {
+				banners: [],
+				pagination: {
+					currentPage: 1,
+					totalPages: 0,
+					totalItems: 0,
+					itemsPerPage: 10,
+				},
+			},
+		};
+	}
+}
+
+// Get banner locations with counts
+export async function getBannerLocations(): Promise<BannerLocationsResponse> {
+	try {
+		console.log("Fetching banner locations");
+
+		const url = `${API_BASE_URL}/banner?path=locations`;
+		console.log("Banner locations URL:", url);
+
+		const response = await fetch(url, {
+			next: { revalidate: 0 },
+			cache: "no-store",
+		});
+
+		if (!response.ok) {
+			throw new Error(`Failed to fetch banner locations: ${response.status}`);
+		}
+
+		const result = await response.json();
+		console.log("Banner locations API response:", result);
+
+		if (result.success && Array.isArray(result.data)) {
+			return result;
+		}
+
+		console.warn("Unexpected API response structure:", result);
+		return {
+			success: false,
+			count: 0,
+			data: [],
+		};
+	} catch (error) {
+		console.error("Error fetching banner locations:", error);
+		return {
+			success: false,
+			count: 0,
+			data: [],
+		};
+	}
+}
+
+// Get banners by specific location
+export async function getBannersByLocation(
+	location: "homepage" | "productpage",
+	limit?: number
+): Promise<Banner[]> {
+	try {
+		console.log(`Fetching banners for location: ${location}`);
+
+		const response = await fetchBanners({
+			location,
+			limit: limit || 5,
+			isActive: true,
+		});
+
+		return response.data.banners;
+	} catch (error) {
+		console.error(`Error fetching banners for location ${location}:`, error);
+		return [];
+	}
+}
+
+// Get homepage banners
+export async function getHomepageBanners(limit?: number): Promise<Banner[]> {
+	return getBannersByLocation("homepage", limit);
+}
+
+// Get product page banners
+export async function getProductPageBanners(limit?: number): Promise<Banner[]> {
+	return getBannersByLocation("productpage", limit);
+}
+
+// Admin Banner Stats function
+export async function fetchAdminBannerStats() {
+	try {
+		const token = getToken();
+		const url = `${API_BASE_URL}/admin/Banner`;
+		console.log("Fetching admin banner stats from:", url);
+
+		const headers: HeadersInit = {};
+		if (token) {
+			headers["Authorization"] = `Bearer ${token}`;
+		} else if (process.env.NODE_ENV === "development") {
+			// Use mock token in development
+			headers["Authorization"] = `Bearer mock-dev-token`;
+		}
+
+		const response = await fetch(url, {
+			headers,
+			next: { revalidate: 0 },
+			cache: "no-store",
+		});
+
+		if (!response.ok) {
+			throw new Error(`Failed to fetch admin banner stats: ${response.status}`);
+		}
+
+		const result = await response.json();
+		console.log("Admin banner stats API response:", result);
+
+		// Handle the specific API response structure
+		if (result.success && result.locationStats) {
+			return {
+				totalBanners: result.totalCount || result.count || 0,
+				locationStats: result.locationStats,
+				banners: result.data || [],
+			};
+		} else if (result.success && result.data) {
+			// Fallback structure
+			return {
+				totalBanners: result.count || result.data.length || 0,
+				locationStats: result.locationStats || null,
+				banners: result.data || [],
+			};
+		}
+
+		return {
+			totalBanners: 0,
+			locationStats: null,
+			banners: [],
+		};
+	} catch (error) {
+		console.error("Error fetching admin banner stats:", error);
+		return {
+			totalBanners: 0,
+			locationStats: null,
+			banners: [],
 		};
 	}
 }

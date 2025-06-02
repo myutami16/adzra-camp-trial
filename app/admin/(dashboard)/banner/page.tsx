@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Edit, Eye, EyeOff, ImageIcon } from "lucide-react";
-import { fetchAdminBanners } from "@/lib/admin-api";
+import { fetchAdminBanners, deleteBanner } from "@/lib/admin-api";
 import { toast } from "sonner";
 import DeleteBannerDialog from "@/components/admin/delete-banner-dialog";
 import BannerStatsCard from "@/components/admin/banner-stats-card";
@@ -50,14 +50,48 @@ export default function BannerManagementPage() {
 	const fetchBanners = async (location?: string) => {
 		try {
 			setLoading(true);
-			const params = location ? { location } : {};
-			const response = await fetchAdminBanners(params);
+			console.log("Fetching banners with location:", location);
 
-			setBanners(response.banners || []);
-			setLocationStats(response.locationStats || {});
+			// Create params object for API call
+			const params: Record<string, any> = {};
+			if (location) {
+				params.location = location;
+			}
+
+			const response = await fetchAdminBanners(params);
+			console.log("Banners response:", response);
+
+			if (response && Array.isArray(response.banners)) {
+				setBanners(response.banners);
+				setLocationStats(response.locationStats || {});
+			} else {
+				console.error("Invalid response format:", response);
+				toast.error("Format respons tidak valid");
+				setBanners([]);
+			}
 		} catch (error) {
 			console.error("Error fetching banners:", error);
 			toast.error("Gagal memuat data banner");
+			setBanners([]);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	// Handle banner deletion
+	const handleDeleteBanner = async (id: string) => {
+		try {
+			setLoading(true);
+			console.log(`Deleting banner with ID: ${id}`);
+
+			await deleteBanner(id);
+			toast.success("Banner berhasil dihapus");
+
+			// Refresh the banner list
+			fetchBanners(activeTab === "all" ? undefined : activeTab);
+		} catch (error) {
+			console.error("Error deleting banner:", error);
+			toast.error("Gagal menghapus banner");
 		} finally {
 			setLoading(false);
 		}
@@ -161,7 +195,7 @@ export default function BannerManagementPage() {
 		return stats ? stats.total >= 5 : false;
 	};
 
-	if (loading) {
+	if (loading && banners.length === 0) {
 		return (
 			<div className="space-y-6">
 				<div className="flex justify-between items-center">
@@ -338,11 +372,9 @@ export default function BannerManagementPage() {
 											<DeleteBannerDialog
 												bannerId={banner.id}
 												bannerLocation={getLocationDisplayName(banner.location)}
-												onSuccess={() =>
-													fetchBanners(
-														activeTab === "all" ? undefined : activeTab
-													)
-												}
+												onSuccess={() => {
+													handleDeleteBanner(banner.id);
+												}}
 											/>
 										</div>
 									</CardContent>
