@@ -10,7 +10,7 @@ import {
 	CarouselNext,
 	CarouselPrevious,
 } from "@/components/ui/carousel";
-import { fetchBanners, type PublicBanner } from "@/lib/api";
+import { getHomepageBanners, type Banner } from "@/lib/api";
 
 const BannerSlider = () => {
 	const [banners, setBanners] = useState([
@@ -31,11 +31,11 @@ const BannerSlider = () => {
 	useEffect(() => {
 		const loadBanners = async () => {
 			try {
-				const bannerData = await fetchBanners("homepage", 5);
+				const bannerData = await getHomepageBanners(5);
 				if (bannerData.length > 0) {
 					// Transform API data to match existing structure
 					const transformedBanners = bannerData.map(
-						(banner: PublicBanner, index: number) => ({
+						(banner: Banner, index: number) => ({
 							id: index + 1,
 							name: `Banner ${index + 1}`,
 							image: banner.image,
