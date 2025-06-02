@@ -1,4 +1,3 @@
-// Add the import at the top of the file
 import { getToken } from "./auth";
 
 const API_BASE_URL =

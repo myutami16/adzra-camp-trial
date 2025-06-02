@@ -29,11 +29,13 @@ const ProductBanner = () => {
 	]);
 
 	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
 		const loadBanners = async () => {
 			try {
 				setLoading(true);
+				setError(null);
 				console.log("Loading product page banners...");
 				const bannerData = await getProductPageBanners(5);
 				console.log("Product page banner data received:", bannerData);
@@ -57,6 +59,7 @@ const ProductBanner = () => {
 				}
 			} catch (error) {
 				console.error("Error loading product page banners:", error);
+				setError("Failed to load banners");
 				// Keep default banners if API fails
 			} finally {
 				setLoading(false);
@@ -69,49 +72,109 @@ const ProductBanner = () => {
 	if (loading) {
 		return (
 			<div className="w-full max-w-6xl mx-auto px-4 mb-8">
-				<div className="aspect-video bg-gray-200 rounded-lg animate-pulse"></div>
+				<div className="aspect-[16/9] bg-gray-200 rounded-lg animate-pulse flex items-center justify-center">
+					<span className="text-gray-500">Loading banners...</span>
+				</div>
+			</div>
+		);
+	}
+
+	if (error) {
+		return (
+			<div className="w-full max-w-6xl mx-auto px-4 mb-8">
+				<div className="aspect-[16/9] bg-red-100 rounded-lg flex items-center justify-center">
+					<span className="text-red-500">Error: {error}</span>
+				</div>
 			</div>
 		);
 	}
 
 	if (ProductBanners.length === 0) {
-		return null; // Don't show anything if no banners available
+		return (
+			<div className="w-full max-w-6xl mx-auto px-4 mb-8">
+				<div className="aspect-[16/9] bg-gray-100 rounded-lg flex items-center justify-center">
+					<span className="text-gray-500">No banners available</span>
+				</div>
+			</div>
+		);
 	}
 
 	return (
-		<div className="w-full aspect-[16/9] mb-8">
-			<Carousel className="w-full h-full">
-				<CarouselContent className="h-full">
-					{ProductBanners.map((banner, index) => (
-						<CarouselItem key={banner.id} className="h-full">
-							<div className="relative w-full h-full">
-								<Image
-									src={banner.image || "/placeholder.svg"}
-									alt={`Product Page Banner ${index + 1}`}
-									fill
-									className="object-cover"
-									sizes="100vw"
-									priority={index === 0}
-									onError={(e) => {
-										console.error(`Failed to load image: ${banner.image}`);
-										// Fallback to placeholder on error
-										e.currentTarget.src = "/placeholder.svg";
-									}}
-									onLoad={() => {
-										console.log(`Image loaded successfully: ${banner.image}`);
-									}}
-								/>
-							</div>
-						</CarouselItem>
-					))}
-				</CarouselContent>
-				{ProductBanners.length > 1 && (
-					<>
-						<CarouselPrevious className="left-4" />
-						<CarouselNext className="right-4" />
-					</>
-				)}
-			</Carousel>
+		<div className="w-full max-w-6xl mx-auto px-4 mb-8">
+			<div className="w-full aspect-[16/9] relative overflow-hidden rounded-lg">
+				<Carousel className="w-full h-full">
+					<CarouselContent className="h-full -ml-0">
+						{ProductBanners.map((banner, index) => (
+							<CarouselItem key={banner.id} className="h-full pl-0">
+								<Card className="h-full overflow-hidden border-0">
+									<div className="relative w-full h-full">
+										{/* Debug info overlay - remove in production */}
+										<div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white text-xs p-2 rounded z-10">
+											Banner {index + 1}: {banner.name}
+											<br />
+											Image: {banner.image ? "✓" : "✗"}
+										</div>
+
+										<Image
+											src={banner.image || "/placeholder.svg"}
+											alt={`Product Page Banner ${index + 1}`}
+											fill
+											className="object-cover object-center"
+											sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
+											priority={index === 0}
+											quality={90}
+											onError={(e) => {
+												console.error(`Failed to load image: ${banner.image}`);
+												const target = e.currentTarget as HTMLImageElement;
+												target.src = "/placeholder.svg";
+											}}
+											onLoad={() => {
+												console.log(
+													`Image loaded successfully: ${banner.image}`
+												);
+											}}
+											onLoadStart={() => {
+												console.log(`Starting to load image: ${banner.image}`);
+											}}
+										/>
+
+										{/* Fallback for failed images */}
+										<div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center opacity-0 hover:opacity-20 transition-opacity">
+											<span className="text-white text-xl font-semibold">
+												{banner.name}
+											</span>
+										</div>
+									</div>
+								</Card>
+							</CarouselItem>
+						))}
+					</CarouselContent>
+					{ProductBanners.length > 1 && (
+						<>
+							<CarouselPrevious className="left-4 bg-white/80 hover:bg-white" />
+							<CarouselNext className="right-4 bg-white/80 hover:bg-white" />
+						</>
+					)}
+				</Carousel>
+			</div>
+
+			{/* Debug information - remove in production */}
+			<div className="mt-4 p-4 bg-gray-100 rounded text-sm">
+				<h4 className="font-semibold mb-2">Debug Info:</h4>
+				<p>Total banners: {ProductBanners.length}</p>
+				<p>Loading: {loading ? "Yes" : "No"}</p>
+				<p>Error: {error || "None"}</p>
+				<div className="mt-2">
+					<strong>Banner URLs:</strong>
+					<ul className="list-disc list-inside">
+						{ProductBanners.map((banner, index) => (
+							<li key={index} className="break-all text-xs">
+								{banner.image}
+							</li>
+						))}
+					</ul>
+				</div>
+			</div>
 		</div>
 	);
 };
