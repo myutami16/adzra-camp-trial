@@ -28,50 +28,44 @@ const BannerSlider = () => {
 		},
 	]);
 
+	const [loading, setLoading] = useState(true);
+
 	useEffect(() => {
 		const loadBanners = async () => {
 			try {
+				setLoading(true);
+				console.log("Loading homepage banners...");
 				const bannerData = await getHomepageBanners(5);
-				if (bannerData.length > 0) {
+				console.log("Homepage banner data received:", bannerData);
+
+				if (bannerData && bannerData.length > 0) {
 					// Transform API data to match existing structure
 					const transformedBanners = bannerData.map(
 						(banner: Banner, index: number) => ({
-							id: index + 1,
+							id: banner.id || index + 1,
 							name: `Banner ${index + 1}`,
 							image: banner.image,
 							href: "#",
 						})
 					);
+					console.log("Transformed banners:", transformedBanners);
 					setBanners(transformedBanners);
+				} else {
+					console.log("No banner data received, keeping default banners");
 				}
 			} catch (error) {
 				console.error("Error loading homepage banners:", error);
 				// Keep default banners if API fails
+			} finally {
+				setLoading(false);
 			}
 		};
 
 		loadBanners();
 	}, []);
 
-	const [loading, setLoading] = useState(false);
-
-	// const fallbackBanners = [
-	//   {
-	//     _id: "fallback-1",
-	//     image: "/Banner/banner1.jpg",
-	//     location: "homepage" as const,
-	//     isActive: true,
-	//   },
-	//   {
-	//     _id: "fallback-2",
-	//     image: "/Banner/banner2.webp",
-	//     location: "homepage" as const,
-	//     isActive: true,
-	//   },
-	// ]
-
 	// Use API banners if available, otherwise use fallback
-	const displayBanners = banners; //banners.length > 0 ? banners : fallbackBanners
+	const displayBanners = banners;
 
 	if (loading) {
 		return (
@@ -99,6 +93,14 @@ const BannerSlider = () => {
 									className="object-cover"
 									sizes="100vw"
 									priority={index === 0}
+									onError={(e) => {
+										console.error(`Failed to load image: ${banner.image}`);
+										// Fallback to placeholder on error
+										e.currentTarget.src = "/placeholder.svg";
+									}}
+									onLoad={() => {
+										console.log(`Image loaded successfully: ${banner.image}`);
+									}}
 								/>
 							</div>
 						</CarouselItem>
@@ -114,4 +116,5 @@ const BannerSlider = () => {
 		</div>
 	);
 };
+
 export default BannerSlider;

@@ -34,18 +34,26 @@ const ProductBanner = () => {
 		const loadBanners = async () => {
 			try {
 				setLoading(true);
+				console.log("Loading product page banners...");
 				const bannerData = await getProductPageBanners(5);
-				if (bannerData.length > 0) {
+				console.log("Product page banner data received:", bannerData);
+
+				if (bannerData && bannerData.length > 0) {
 					// Transform API data to match existing structure
 					const transformedBanners = bannerData.map(
 						(banner: Banner, index: number) => ({
-							id: index + 1,
+							id: banner.id || index + 1,
 							name: `Product Banner ${index + 1}`,
 							image: banner.image,
 							href: "#", // Default href since API doesn't provide this
 						})
 					);
+					console.log("Transformed product banners:", transformedBanners);
 					setProductBanners(transformedBanners);
+				} else {
+					console.log(
+						"No product banner data received, keeping default banners"
+					);
 				}
 			} catch (error) {
 				console.error("Error loading product page banners:", error);
@@ -84,6 +92,14 @@ const ProductBanner = () => {
 									className="object-cover"
 									sizes="100vw"
 									priority={index === 0}
+									onError={(e) => {
+										console.error(`Failed to load image: ${banner.image}`);
+										// Fallback to placeholder on error
+										e.currentTarget.src = "/placeholder.svg";
+									}}
+									onLoad={() => {
+										console.log(`Image loaded successfully: ${banner.image}`);
+									}}
 								/>
 							</div>
 						</CarouselItem>
