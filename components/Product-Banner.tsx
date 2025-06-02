@@ -118,7 +118,8 @@ const ProductBanner = () => {
 										<Image
 											src={banner.image || "/placeholder.svg"}
 											alt={`Product Page Banner ${index + 1}`}
-											fill
+											width={1440}
+											height={600}
 											className="object-cover object-center"
 											sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
 											priority={index === 0}
