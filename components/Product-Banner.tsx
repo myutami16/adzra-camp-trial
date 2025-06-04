@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import {
@@ -11,11 +11,10 @@ import {
 	CarouselPrevious,
 } from "@/components/ui/carousel";
 import { getProductPageBanners, type Banner } from "@/lib/api";
+import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 
 const ProductBanner = () => {
-	const plugin = useRef(Autoplay({ delay: 10000, stopOnInteraction: true }));
-
 	const [ProductBanners, setProductBanners] = useState([
 		{
 			id: 1,
@@ -107,7 +106,11 @@ const ProductBanner = () => {
 			<div className="w-full h-[600px] relative overflow-hidden">
 				<Carousel
 					className="w-full h-full"
-					plugins={[plugin.current]}
+					plugins={[
+						Autoplay({
+							delay: 10000,
+						}),
+					]}
 					opts={{
 						align: "start",
 						loop: true,

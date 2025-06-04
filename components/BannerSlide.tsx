@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import {
@@ -14,8 +14,6 @@ import { getHomepageBanners, type Banner } from "@/lib/api";
 import Autoplay from "embla-carousel-autoplay";
 
 const BannerSlider = () => {
-	const plugin = useRef(Autoplay({ delay: 3000, stopOnInteraction: true }));
-
 	const [banners, setBanners] = useState([
 		{
 			id: 1,
@@ -107,7 +105,11 @@ const BannerSlider = () => {
 			<div className="w-full h-[600px] relative overflow-hidden">
 				<Carousel
 					className="w-full h-full"
-					plugins={[plugin.current]}
+					plugins={[
+						Autoplay({
+							delay: 3000,
+						}),
+					]}
 					opts={{
 						align: "start",
 						loop: true,
