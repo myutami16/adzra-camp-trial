@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import {
@@ -9,11 +9,14 @@ import {
 	CarouselItem,
 	CarouselNext,
 	CarouselPrevious,
+	CarouselApi,
 } from "@/components/ui/carousel";
 import { getHomepageBanners, type Banner } from "@/lib/api";
-import Autoplay from "embla-carousel-autoplay";
 
 const BannerSlider = () => {
+	const [api, setApi] = useState<CarouselApi>();
+	const [current, setCurrent] = useState(0);
+
 	const [banners, setBanners] = useState([
 		{
 			id: 1,
@@ -70,6 +73,29 @@ const BannerSlider = () => {
 		loadBanners();
 	}, []);
 
+	useEffect(() => {
+		if (!api) {
+			return;
+		}
+
+		setCurrent(api.selectedScrollSnap());
+
+		api.on("select", () => {
+			setCurrent(api.selectedScrollSnap());
+		});
+
+		// Auto-slide functionality
+		const autoSlide = setInterval(() => {
+			if (api.canScrollNext()) {
+				api.scrollNext();
+			} else {
+				api.scrollTo(0);
+			}
+		}, 3000); // 3 seconds
+
+		return () => clearInterval(autoSlide);
+	}, [api]);
+
 	if (loading) {
 		return (
 			<div className="w-full mb-8">
@@ -104,12 +130,8 @@ const BannerSlider = () => {
 		<div className="w-full mb-8">
 			<div className="w-full h-[600px] relative overflow-hidden">
 				<Carousel
+					setApi={setApi}
 					className="w-full h-full"
-					plugins={[
-						Autoplay({
-							delay: 3000,
-						}),
-					]}
 					opts={{
 						align: "start",
 						loop: true,

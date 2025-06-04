@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import {
@@ -9,12 +9,14 @@ import {
 	CarouselItem,
 	CarouselNext,
 	CarouselPrevious,
+	CarouselApi,
 } from "@/components/ui/carousel";
 import { getProductPageBanners, type Banner } from "@/lib/api";
-import useEmblaCarousel from "embla-carousel-react";
-import Autoplay from "embla-carousel-autoplay";
 
 const ProductBanner = () => {
+	const [api, setApi] = useState<CarouselApi>();
+	const [current, setCurrent] = useState(0);
+
 	const [ProductBanners, setProductBanners] = useState([
 		{
 			id: 1,
@@ -71,6 +73,29 @@ const ProductBanner = () => {
 		loadBanners();
 	}, []);
 
+	useEffect(() => {
+		if (!api) {
+			return;
+		}
+
+		setCurrent(api.selectedScrollSnap());
+
+		api.on("select", () => {
+			setCurrent(api.selectedScrollSnap());
+		});
+
+		// Auto-slide functionality
+		const autoSlide = setInterval(() => {
+			if (api.canScrollNext()) {
+				api.scrollNext();
+			} else {
+				api.scrollTo(0);
+			}
+		}, 10000); // 10 seconds
+
+		return () => clearInterval(autoSlide);
+	}, [api]);
+
 	if (loading) {
 		return (
 			<div className="w-full mb-8">
@@ -105,12 +130,8 @@ const ProductBanner = () => {
 		<div className="w-full mb-8">
 			<div className="w-full h-[600px] relative overflow-hidden">
 				<Carousel
+					setApi={setApi}
 					className="w-full h-full"
-					plugins={[
-						Autoplay({
-							delay: 10000,
-						}),
-					]}
 					opts={{
 						align: "start",
 						loop: true,
