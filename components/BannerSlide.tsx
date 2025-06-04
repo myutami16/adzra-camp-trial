@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import {
@@ -9,10 +9,14 @@ import {
 	CarouselItem,
 	CarouselNext,
 	CarouselPrevious,
+	CarouselApi,
 } from "@/components/ui/carousel";
 import { getHomepageBanners, type Banner } from "@/lib/api";
 
 const BannerSlider = () => {
+	const [api, setApi] = useState<CarouselApi>();
+	const [current, setCurrent] = useState(0);
+
 	const [banners, setBanners] = useState([
 		{
 			id: 1,
@@ -69,10 +73,33 @@ const BannerSlider = () => {
 		loadBanners();
 	}, []);
 
+	useEffect(() => {
+		if (!api) {
+			return;
+		}
+
+		setCurrent(api.selectedScrollSnap());
+
+		api.on("select", () => {
+			setCurrent(api.selectedScrollSnap());
+		});
+
+		// Auto-slide functionality
+		const autoSlide = setInterval(() => {
+			if (api.canScrollNext()) {
+				api.scrollNext();
+			} else {
+				api.scrollTo(0);
+			}
+		}, 3000); // 3 seconds
+
+		return () => clearInterval(autoSlide);
+	}, [api]);
+
 	if (loading) {
 		return (
-			<div className="w-full max-w-6xl mx-auto px-4 mb-8">
-				<div className="aspect-[16/9] bg-gray-200 rounded-lg animate-pulse flex items-center justify-center">
+			<div className="w-full mb-8">
+				<div className="w-full h-[600px] bg-gray-200 animate-pulse flex items-center justify-center">
 					<span className="text-gray-500">Loading homepage banners...</span>
 				</div>
 			</div>
@@ -81,8 +108,8 @@ const BannerSlider = () => {
 
 	if (error) {
 		return (
-			<div className="w-full max-w-6xl mx-auto px-4 mb-8">
-				<div className="aspect-[16/9] bg-red-100 rounded-lg flex items-center justify-center">
+			<div className="w-full mb-8">
+				<div className="w-full h-[600px] bg-red-100 flex items-center justify-center">
 					<span className="text-red-500">Error: {error}</span>
 				</div>
 			</div>
@@ -91,8 +118,8 @@ const BannerSlider = () => {
 
 	if (banners.length === 0) {
 		return (
-			<div className="w-full max-w-6xl mx-auto px-4 mb-8">
-				<div className="aspect-[16/9] bg-gray-100 rounded-lg flex items-center justify-center">
+			<div className="w-full mb-8">
+				<div className="w-full h-[600px] bg-gray-100 flex items-center justify-center">
 					<span className="text-gray-500">No homepage banners available</span>
 				</div>
 			</div>
@@ -100,13 +127,19 @@ const BannerSlider = () => {
 	}
 
 	return (
-		<div className="w-full max-w-6xl mx-auto px-4 mb-8">
-			<div className="w-full aspect-[16/9] relative overflow-hidden rounded-lg">
-				<Carousel className="w-full h-full">
+		<div className="w-full mb-8">
+			<div className="w-full h-[600px] relative overflow-hidden">
+				<Carousel
+					setApi={setApi}
+					className="w-full h-full"
+					opts={{
+						align: "start",
+						loop: true,
+					}}>
 					<CarouselContent className="h-full -ml-0">
 						{banners.map((banner, index) => (
 							<CarouselItem key={banner.id} className="h-full pl-0">
-								<Card className="h-full overflow-hidden border-0">
+								<Card className="h-full overflow-hidden border-0 rounded-none">
 									<div className="relative w-full h-full">
 										{/* Debug info overlay - remove in production */}
 										<div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white text-xs p-2 rounded z-10">
@@ -120,8 +153,8 @@ const BannerSlider = () => {
 											alt={`Homepage Banner ${index + 1}`}
 											width={1440}
 											height={600}
-											className="object-cover object-center"
-											sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
+											className="w-full h-full object-cover object-center"
+											sizes="100vw"
 											priority={index === 0}
 											quality={90}
 											onError={(e) => {
@@ -161,24 +194,6 @@ const BannerSlider = () => {
 						</>
 					)}
 				</Carousel>
-			</div>
-
-			{/* Debug information - remove in production */}
-			<div className="mt-4 p-4 bg-gray-100 rounded text-sm">
-				<h4 className="font-semibold mb-2">Homepage Banner Debug Info:</h4>
-				<p>Total banners: {banners.length}</p>
-				<p>Loading: {loading ? "Yes" : "No"}</p>
-				<p>Error: {error || "None"}</p>
-				<div className="mt-2">
-					<strong>Banner URLs:</strong>
-					<ul className="list-disc list-inside">
-						{banners.map((banner, index) => (
-							<li key={index} className="break-all text-xs">
-								{banner.image}
-							</li>
-						))}
-					</ul>
-				</div>
 			</div>
 		</div>
 	);
