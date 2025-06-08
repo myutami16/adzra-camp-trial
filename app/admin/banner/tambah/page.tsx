@@ -75,6 +75,8 @@ export default function TambahBannerPage() {
 		const file = e.target.files?.[0];
 		if (!file) return;
 
+		console.log("File selected:", file);
+
 		// Validate file type
 		if (!file.type.match(/^image\/(jpeg|jpg|png)$/)) {
 			toast.error("Format file harus JPG atau PNG");
@@ -91,8 +93,13 @@ export default function TambahBannerPage() {
 			// Store original file and create data URL for cropping
 			setOriginalFile(file);
 			const dataUrl = await fileToDataUrl(file);
+			console.log("Data URL created for cropping");
 			setCropImageUrl(dataUrl);
 			setShowCropper(true);
+
+			// Clear any existing preview since we're going to crop
+			setImagePreview(null);
+			setFormData((prev) => ({ ...prev, image: null }));
 		} catch (error) {
 			console.error("Error preparing image for crop:", error);
 			toast.error("Gagal memproses gambar");
@@ -101,28 +108,45 @@ export default function TambahBannerPage() {
 
 	// Handle crop completion
 	const handleCropComplete = (croppedFile: File) => {
+		console.log("Crop completed, received file:", croppedFile);
+		console.log("File details:", {
+			name: croppedFile.name,
+			size: croppedFile.size,
+			type: croppedFile.type,
+		});
+
 		// Check if cropped file size exceeds 500KB
 		if (croppedFile.size > 500 * 1024) {
 			showErrorDialog("Ukuran gambar melebihi 500 KB.", "Error Upload");
 			return;
 		}
 
+		// Update form data with cropped file
 		setFormData((prev) => ({ ...prev, image: croppedFile }));
 
 		// Create preview from cropped file
 		const reader = new FileReader();
 		reader.onload = (e) => {
-			setImagePreview(e.target?.result as string);
+			const result = e.target?.result as string;
+			console.log("Preview created from cropped file");
+			setImagePreview(result);
+		};
+		reader.onerror = (error) => {
+			console.error("Error creating preview:", error);
+			toast.error("Gagal membuat preview gambar");
 		};
 		reader.readAsDataURL(croppedFile);
 
+		// Hide cropper
 		setShowCropper(false);
 		setCropImageUrl(null);
+
 		toast.success("Gambar berhasil di-crop dan siap digunakan!");
 	};
 
 	// Handle crop cancel
 	const handleCropCancel = () => {
+		console.log("Crop cancelled");
 		setShowCropper(false);
 		setCropImageUrl(null);
 		setOriginalFile(null);
@@ -152,6 +176,8 @@ export default function TambahBannerPage() {
 	const removeImage = (e: React.MouseEvent) => {
 		e.preventDefault();
 		e.stopPropagation();
+		console.log("Removing image");
+
 		setFormData((prev) => ({ ...prev, image: null }));
 		setImagePreview(null);
 		setOriginalFile(null);
@@ -161,6 +187,8 @@ export default function TambahBannerPage() {
 		if (fileInput) {
 			fileInput.value = "";
 		}
+
+		toast.success("Gambar dihapus");
 	};
 
 	// Handle form submission
@@ -312,7 +340,7 @@ export default function TambahBannerPage() {
 							<Label htmlFor="image" className="text-sm font-medium">
 								Gambar Banner <span className="text-red-500">*</span>
 							</Label>
-							{/* Fixed upload area with proper event handling */}
+							{/* Upload area with proper event handling */}
 							<div
 								className={`relative border-2 border-dashed rounded-lg p-6 transition-colors ${
 									!formData.image
@@ -323,7 +351,7 @@ export default function TambahBannerPage() {
 									<div className="relative">
 										<div className="aspect-video relative rounded-lg overflow-hidden">
 											<Image
-												src={imagePreview || "/placeholder.svg"}
+												src={imagePreview}
 												alt="Preview banner"
 												fill
 												className="object-cover"
@@ -379,7 +407,7 @@ export default function TambahBannerPage() {
 										</div>
 									</div>
 								)}
-								{/* File input positioned to only cover upload area when no image is selected */}
+								{/* File input positioned to cover upload area when no image is selected */}
 								{!imagePreview && (
 									<Input
 										id="image"

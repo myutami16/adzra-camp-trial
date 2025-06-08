@@ -34,12 +34,16 @@ export default function BannerImageCropper({
 
 	const onCropCompleteInternal = useCallback(
 		(_: any, croppedAreaPixels: any) => {
+			console.log("Crop completed:", croppedAreaPixels);
 			setCroppedAreaPixels(croppedAreaPixels);
 		},
 		[]
 	);
 
 	const handleCropSave = async () => {
+		console.log("HandleCropSave called");
+		console.log("CroppedAreaPixels:", croppedAreaPixels);
+
 		if (!croppedAreaPixels) {
 			toast.error("Silakan pilih area crop terlebih dahulu");
 			return;
@@ -58,14 +62,21 @@ export default function BannerImageCropper({
 
 		try {
 			setLoading(true);
+			console.log("Starting crop process...");
 
 			// Get cropped image blob
 			const croppedBlob = await getCroppedImg(image, croppedAreaPixels);
+			console.log("Cropped blob created:", croppedBlob);
 
 			// Convert blob to file
 			const croppedFile = new File([croppedBlob], originalFileName, {
 				type: "image/jpeg",
 				lastModified: Date.now(),
+			});
+			console.log("Cropped file created:", {
+				name: croppedFile.name,
+				size: croppedFile.size,
+				type: croppedFile.type,
 			});
 
 			// Validate file size (500KB limit)
@@ -74,7 +85,7 @@ export default function BannerImageCropper({
 				return;
 			}
 
-			toast.success("Gambar berhasil di-crop!");
+			console.log("Calling onCropComplete with file...");
 			onCropComplete(croppedFile);
 		} catch (error) {
 			console.error("Error cropping image:", error);
@@ -176,7 +187,8 @@ export default function BannerImageCropper({
 						</Button>
 						<Button
 							onClick={handleCropSave}
-							disabled={loading || !croppedAreaPixels}>
+							disabled={loading || !croppedAreaPixels}
+							className="bg-green-600 hover:bg-green-700">
 							{loading ? (
 								<>
 									<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
