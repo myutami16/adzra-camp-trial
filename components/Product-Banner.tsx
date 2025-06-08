@@ -141,12 +141,12 @@ const ProductBanner = () => {
 							<CarouselItem key={banner.id} className="h-full pl-0">
 								<Card className="h-full overflow-hidden border-0 rounded-none">
 									<div className="relative w-full h-full">
-										{/* Debug info overlay - remove in production */}
-										<div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white text-xs p-2 rounded z-10">
+										{/* Debug info overlay */}
+										{/* <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white text-xs p-2 rounded z-10">
 											Banner {index + 1}: {banner.name}
 											<br />
 											Image: {banner.image ? "✓" : "✗"}
-										</div>
+										</div> */}
 
 										<Image
 											src={banner.image || "/placeholder.svg"}

@@ -361,14 +361,6 @@ export default function BannerManagementPage() {
 										</div>
 
 										<div className="flex gap-2 mt-4">
-											<Link
-												href={`/admin/banner/edit/${banner.id}`}
-												className="flex-1">
-												<Button variant="outline" size="sm" className="w-full">
-													<Edit className="h-4 w-4 mr-2" />
-													Edit
-												</Button>
-											</Link>
 											<DeleteBannerDialog
 												bannerId={banner.id}
 												bannerLocation={getLocationDisplayName(banner.location)}
