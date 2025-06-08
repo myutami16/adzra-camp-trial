@@ -29,8 +29,6 @@ export default function BannerImageCropper({
 
 	// Banner aspect ratio 16:9
 	const BANNER_ASPECT_RATIO = 16 / 9;
-	const MIN_WIDTH = 1440;
-	const MIN_HEIGHT = 600; // 1440 / (16/9) = 810, but we'll use 600 as minimum
 
 	const onCropCompleteInternal = useCallback(
 		(_: any, croppedAreaPixels: any) => {
@@ -46,17 +44,6 @@ export default function BannerImageCropper({
 
 		if (!croppedAreaPixels) {
 			toast.error("Silakan pilih area crop terlebih dahulu");
-			return;
-		}
-
-		// Validate minimum dimensions
-		if (
-			croppedAreaPixels.width < MIN_WIDTH ||
-			croppedAreaPixels.height < MIN_HEIGHT
-		) {
-			toast.error(
-				`Area crop terlalu kecil. Minimum ${MIN_WIDTH}x${MIN_HEIGHT} piksel`
-			);
 			return;
 		}
 
@@ -107,8 +94,7 @@ export default function BannerImageCropper({
 				<div>
 					<CardTitle className="text-lg">Crop Banner Image</CardTitle>
 					<p className="text-sm text-gray-600 mt-1">
-						Pilih area gambar dengan rasio 16:9 (minimum {MIN_WIDTH}x
-						{MIN_HEIGHT}px)
+						Pilih area gambar dengan rasio 16:9
 					</p>
 				</div>
 				<Button
@@ -144,10 +130,6 @@ export default function BannerImageCropper({
 						<div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
 							{Math.round(croppedAreaPixels.width)} ×{" "}
 							{Math.round(croppedAreaPixels.height)}px
-							{(croppedAreaPixels.width < MIN_WIDTH ||
-								croppedAreaPixels.height < MIN_HEIGHT) && (
-								<span className="text-red-300 ml-1">⚠ Terlalu kecil</span>
-							)}
 						</div>
 					)}
 				</div>
@@ -210,9 +192,6 @@ export default function BannerImageCropper({
 							<ul className="text-blue-700 space-y-1">
 								<li>• Drag untuk memindahkan area crop</li>
 								<li>• Gunakan slider untuk zoom in/out</li>
-								<li>
-									• Pastikan area crop minimum {MIN_WIDTH}x{MIN_HEIGHT} piksel
-								</li>
 								<li>• Rasio aspek otomatis terkunci pada 16:9</li>
 							</ul>
 						</div>

@@ -71,23 +71,8 @@ export function validateBannerCrop(crop: Area): {
 	errors: string[];
 } {
 	const errors: string[] = [];
-	const MIN_WIDTH = 1440;
-	const MIN_HEIGHT = 600;
 	const ASPECT_RATIO = 16 / 9;
 	const ASPECT_TOLERANCE = 0.01;
-
-	// Check minimum dimensions
-	if (crop.width < MIN_WIDTH) {
-		errors.push(
-			`Lebar minimum ${MIN_WIDTH}px (saat ini: ${Math.round(crop.width)}px)`
-		);
-	}
-
-	if (crop.height < MIN_HEIGHT) {
-		errors.push(
-			`Tinggi minimum ${MIN_HEIGHT}px (saat ini: ${Math.round(crop.height)}px)`
-		);
-	}
 
 	// Check aspect ratio
 	const currentAspectRatio = crop.width / crop.height;
