@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Edit, Eye, EyeOff, ImageIcon } from "lucide-react";
+import { Plus, Edit, Eye, EyeOff, ImageIcon, RefreshCw } from "lucide-react";
 import { fetchAdminBanners, deleteBanner } from "@/lib/admin-api";
 import { toast } from "sonner";
 import DeleteBannerDialog from "@/components/admin/delete-banner-dialog";
@@ -34,6 +34,7 @@ interface LocationStats {
 export default function BannerManagementPage() {
 	const [banners, setBanners] = useState<Banner[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [locationStats, setLocationStats] = useState<LocationStats>({});
 	const [activeTab, setActiveTab] = useState<
 		"all" | "homepage" | "productpage"
@@ -75,6 +76,20 @@ export default function BannerManagementPage() {
 			setBanners([]);
 		} finally {
 			setLoading(false);
+		}
+	};
+
+	// Refresh data function
+	const refreshData = async () => {
+		setIsRefreshing(true);
+		try {
+			await fetchBanners(activeTab === "all" ? undefined : activeTab);
+			toast.success("Data banner berhasil diperbarui");
+		} catch (error) {
+			console.error("Error refreshing banners:", error);
+			toast.error("Gagal memperbarui data banner");
+		} finally {
+			setIsRefreshing(false);
 		}
 	};
 
@@ -226,12 +241,23 @@ export default function BannerManagementPage() {
 						Kelola banner untuk homepage dan halaman produk
 					</p>
 				</div>
-				<Link href="/admin/banner/tambah">
-					<Button>
-						<Plus className="h-4 w-4 mr-2" />
-						Tambah Banner
+				<div className="flex gap-2">
+					<Button
+						variant="outline"
+						onClick={refreshData}
+						disabled={isRefreshing}>
+						<RefreshCw
+							className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`}
+						/>
+						Refresh
 					</Button>
-				</Link>
+					<Link href="/admin/banner/tambah">
+						<Button>
+							<Plus className="h-4 w-4 mr-2" />
+							Tambah Banner
+						</Button>
+					</Link>
+				</div>
 			</div>
 
 			{/* Statistics Cards */}

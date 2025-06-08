@@ -7,17 +7,56 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Send } from "lucide-react";
+import { Send, Plus, Trash2 } from "lucide-react";
+
+interface ProductItem {
+	id: string;
+	name: string;
+	quantity: number;
+}
 
 export default function PurchaseFormClient() {
 	const [name, setName] = useState("");
 	const [phone, setPhone] = useState("");
 	const [address, setAddress] = useState("");
-	const [products, setProducts] = useState("");
+	const [products, setProducts] = useState<ProductItem[]>([
+		{ id: crypto.randomUUID(), name: "", quantity: 1 },
+	]);
 	const [notes, setNotes] = useState("");
+
+	const addProduct = () => {
+		setProducts([
+			...products,
+			{ id: crypto.randomUUID(), name: "", quantity: 1 },
+		]);
+	};
+
+	const removeProduct = (id: string) => {
+		if (products.length > 1) {
+			setProducts(products.filter((product) => product.id !== id));
+		}
+	};
+
+	const updateProduct = (
+		id: string,
+		field: keyof ProductItem,
+		value: string | number
+	) => {
+		setProducts(
+			products.map((product) =>
+				product.id === id ? { ...product, [field]: value } : product
+			)
+		);
+	};
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
+
+		// Format the products list
+		const productsList = products
+			.filter((product) => product.name.trim() !== "")
+			.map((product) => `${product.name} x ${product.quantity}`)
+			.join("\n");
 
 		// Format the message for WhatsApp
 		const message = `
@@ -28,7 +67,7 @@ No. Telp: ${phone}
 Alamat: ${address}
 
 Produk yang ingin dibeli:
-${products}
+${productsList}
 
 Catatan:
 ${notes || "-"}
@@ -85,16 +124,52 @@ ${notes || "-"}
 								/>
 							</div>
 
-							<div>
-								<Label htmlFor="products">Produk yang ingin dibeli</Label>
-								<Textarea
-									id="products"
-									value={products}
-									onChange={(e) => setProducts(e.target.value)}
-									placeholder="Contoh: Tenda Dome 4 orang - 1 buah, Sleeping Bag - 2 buah"
-									rows={4}
-									required
-								/>
+							<div className="space-y-3">
+								<Label>Produk yang ingin dibeli</Label>
+
+								{products.map((product, index) => (
+									<div key={product.id} className="flex gap-2">
+										<Input
+											value={product.name}
+											onChange={(e) =>
+												updateProduct(product.id, "name", e.target.value)
+											}
+											placeholder="Nama produk"
+											className="flex-1"
+										/>
+										<Input
+											type="number"
+											min="1"
+											value={product.quantity}
+											onChange={(e) =>
+												updateProduct(
+													product.id,
+													"quantity",
+													Number.parseInt(e.target.value)
+												)
+											}
+											className="w-20"
+										/>
+										<Button
+											type="button"
+											variant="outline"
+											size="icon"
+											onClick={() => removeProduct(product.id)}
+											disabled={products.length === 1}>
+											<Trash2 className="h-4 w-4" />
+										</Button>
+									</div>
+								))}
+
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									onClick={addProduct}
+									className="flex items-center gap-1">
+									<Plus className="h-4 w-4" />
+									Tambah Produk
+								</Button>
 							</div>
 
 							<div>
