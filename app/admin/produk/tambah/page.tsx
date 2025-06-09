@@ -23,12 +23,17 @@ import { getToken } from "@/lib/auth";
 // Product categories
 const PRODUCT_CATEGORIES = [
 	"Tenda Camping",
-	"Aksesori",
+	"Matras & Sleeping Kit",
 	"Sleeping Bag",
-	"Perlengkapan Outdoor & Survival",
-	"Lampu",
-	"Carrier & Ransel",
-	"Peralatan Memasak Outdoor",
+	"Carrier & Daypack",
+	"Flysheet & Aksesorinya",
+	"Meja & Kursi Lipat",
+	"Peralatan Masak Outdoor & Grill Kit",
+	"Trekking Pole",
+	"Lampu & Penerangan Outdoor",
+	"Pisau Lipat & Peralatan Survival",
+	"Aksesori Tambahan",
+	"Paket Komplit Camping",
 	"Lain-lain",
 ];
 
