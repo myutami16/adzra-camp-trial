@@ -1,18 +1,16 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import Image from "next/image";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import {
 	Carousel,
 	CarouselContent,
-	CarouselItem,
 	CarouselNext,
 	CarouselPrevious,
 	CarouselApi,
 } from "@/components/ui/carousel";
 import { getHomepageBanners, type Banner } from "@/lib/api";
-import { useBannerClick } from "@/hooks/banner_hooks";
+import BannerItem from "./BannerItem"; // Import komponen BannerItem
 
 const BannerSlider = () => {
 	const [api, setApi] = useState<CarouselApi>();
@@ -24,14 +22,14 @@ const BannerSlider = () => {
 			name: "Promo Ramadhan",
 			image: "/Banner/banner1.jpg",
 			href: "/promo/ramadhan",
-			targetUrl: "/promo/ramadhan", // Added for consistency
+			targetUrl: "/promo/ramadhan",
 		},
 		{
 			id: 2,
 			name: "Diskon Spesial",
 			image: "/Banner/banner2.webp",
 			href: "/promo/diskon",
-			targetUrl: "/promo/diskon", // Added for consistency
+			targetUrl: "/promo/diskon",
 		},
 	]);
 
@@ -48,15 +46,14 @@ const BannerSlider = () => {
 				console.log("Homepage banner data received:", bannerData);
 
 				if (bannerData && bannerData.length > 0) {
-					// Transform API data to match existing structure
 					const transformedBanners = bannerData.map(
 						(banner: Banner, index: number) => ({
 							id: banner.id || index + 1,
 							name: `Homepage Banner ${index + 1}`,
 							image: banner.image,
 							href: banner.targetUrl || "#",
-							targetUrl: banner.targetUrl || "", // Add targetUrl from API
-							location: "homepage", // Add location for banner actions
+							targetUrl: banner.targetUrl || "",
+							location: "homepage",
 							isActive: banner.isActive !== undefined ? banner.isActive : true,
 						})
 					);
@@ -70,7 +67,6 @@ const BannerSlider = () => {
 			} catch (error) {
 				console.error("Error loading homepage banners:", error);
 				setError("Failed to load homepage banners");
-				// Keep default banners if API fails
 			} finally {
 				setLoading(false);
 			}
@@ -90,14 +86,13 @@ const BannerSlider = () => {
 			setCurrent(api.selectedScrollSnap());
 		});
 
-		// Auto-slide functionality
 		const autoSlide = setInterval(() => {
 			if (api.canScrollNext()) {
 				api.scrollNext();
 			} else {
 				api.scrollTo(0);
 			}
-		}, 3000); // 3 seconds
+		}, 3000);
 
 		return () => clearInterval(autoSlide);
 	}, [api]);
@@ -143,85 +138,16 @@ const BannerSlider = () => {
 						loop: true,
 					}}>
 					<CarouselContent className="h-full -ml-0">
-						{banners.map((banner, index) => {
-							// Use banner click hook for each banner
-							const { clickHandler, isClickable } = useBannerClick(banner, {
-								trackAnalytics: true,
-								preventDefault: true,
-							});
-
-							return (
-								<CarouselItem key={banner.id} className="h-full pl-0">
-									<Card className="h-full overflow-hidden border-0 rounded-none">
-										<div
-											className={`relative w-full h-full ${
-												isClickable ? "cursor-pointer" : "cursor-default"
-											}`}
-											onClick={clickHandler}
-											role={isClickable ? "button" : undefined}
-											tabIndex={isClickable ? 0 : undefined}
-											onKeyDown={(e) => {
-												if (
-													isClickable &&
-													(e.key === "Enter" || e.key === " ")
-												) {
-													e.preventDefault();
-													clickHandler(e as any);
-												}
-											}}>
-											{/* Debug info overlay */}
-											{/* <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white text-xs p-2 rounded z-10">
-												Homepage Banner {index + 1}: {banner.name}
-												<br />
-												Image: {banner.image ? "✓" : "✗"}
-												<br />
-												Clickable: {isClickable ? "✓" : "✗"}
-											</div> */}
-
-											<Image
-												src={banner.image || "/placeholder.svg"}
-												alt={`Homepage Banner ${index + 1}`}
-												width={1440}
-												height={600}
-												className="w-full h-full object-cover object-center"
-												sizes="100vw"
-												priority={index === 0}
-												quality={90}
-												onError={(e) => {
-													console.error(
-														`Failed to load homepage image: ${banner.image}`
-													);
-													const target = e.currentTarget as HTMLImageElement;
-													target.src = "/placeholder.svg";
-												}}
-												onLoad={() => {
-													console.log(
-														`Homepage image loaded successfully: ${banner.image}`
-													);
-												}}
-												onLoadStart={() => {
-													console.log(
-														`Starting to load homepage image: ${banner.image}`
-													);
-												}}
-											/>
-
-											{/* Clickable indicator overlay */}
-											{isClickable && (
-												<div className="absolute inset-0 bg-transparent hover:bg-black hover:bg-opacity-10 transition-all duration-200" />
-											)}
-
-											{/* Fallback for failed images */}
-											<div className="absolute inset-0 bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center opacity-0 hover:opacity-20 transition-opacity">
-												<span className="text-white text-xl font-semibold">
-													{banner.name}
-												</span>
-											</div>
-										</div>
-									</Card>
-								</CarouselItem>
-							);
-						})}
+						{/* SOLUSI: Hook dipanggil di dalam BannerItem, bukan di map */}
+						{banners.map((banner, index) => (
+							<BannerItem
+								key={banner.id}
+								banner={banner}
+								index={index}
+								altPrefix="Homepage Banner"
+								gradientColors="from-green-500 to-blue-600"
+							/>
+						))}
 					</CarouselContent>
 					{banners.length > 1 && (
 						<>

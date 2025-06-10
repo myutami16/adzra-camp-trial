@@ -1,18 +1,15 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import Image from "next/image";
-import { Card } from "@/components/ui/card";
+import { useState, useEffect } from "react";
 import {
 	Carousel,
 	CarouselContent,
-	CarouselItem,
 	CarouselNext,
 	CarouselPrevious,
 	CarouselApi,
 } from "@/components/ui/carousel";
 import { getProductPageBanners, type Banner } from "@/lib/api";
-import { useBannerClick } from "@/hooks/banner_hooks";
+import BannerItem from "./BannerItem"; // Import komponen BannerItem yang sama
 
 const ProductBanner = () => {
 	const [api, setApi] = useState<CarouselApi>();
@@ -90,7 +87,7 @@ const ProductBanner = () => {
 			setCurrent(api.selectedScrollSnap());
 		});
 
-		// Auto-slide functionality
+		// Auto-slide functionality - 10 seconds untuk product page
 		const autoSlide = setInterval(() => {
 			if (api.canScrollNext()) {
 				api.scrollNext();
@@ -143,85 +140,16 @@ const ProductBanner = () => {
 						loop: true,
 					}}>
 					<CarouselContent className="h-full -ml-0">
-						{ProductBanners.map((banner, index) => {
-							// Use banner click hook for each banner
-							const { clickHandler, isClickable } = useBannerClick(banner, {
-								trackAnalytics: true,
-								preventDefault: true,
-							});
-
-							return (
-								<CarouselItem key={banner.id} className="h-full pl-0">
-									<Card className="h-full overflow-hidden border-0 rounded-none">
-										<div
-											className={`relative w-full h-full ${
-												isClickable ? "cursor-pointer" : "cursor-default"
-											}`}
-											onClick={clickHandler}
-											role={isClickable ? "button" : undefined}
-											tabIndex={isClickable ? 0 : undefined}
-											onKeyDown={(e) => {
-												if (
-													isClickable &&
-													(e.key === "Enter" || e.key === " ")
-												) {
-													e.preventDefault();
-													clickHandler(e as any);
-												}
-											}}>
-											{/* Debug info overlay */}
-											{/* <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white text-xs p-2 rounded z-10">
-												Banner {index + 1}: {banner.name}
-												<br />
-												Image: {banner.image ? "✓" : "✗"}
-												<br />
-												Clickable: {isClickable ? "✓" : "✗"}
-											</div> */}
-
-											<Image
-												src={banner.image || "/placeholder.svg"}
-												alt={`Product Page Banner ${index + 1}`}
-												width={1440}
-												height={600}
-												className="w-full h-full object-cover object-center"
-												sizes="100vw"
-												priority={index === 0}
-												quality={90}
-												onError={(e) => {
-													console.error(
-														`Failed to load image: ${banner.image}`
-													);
-													const target = e.currentTarget as HTMLImageElement;
-													target.src = "/placeholder.svg";
-												}}
-												onLoad={() => {
-													console.log(
-														`Image loaded successfully: ${banner.image}`
-													);
-												}}
-												onLoadStart={() => {
-													console.log(
-														`Starting to load image: ${banner.image}`
-													);
-												}}
-											/>
-
-											{/* Clickable indicator overlay */}
-											{isClickable && (
-												<div className="absolute inset-0 bg-transparent hover:bg-black hover:bg-opacity-10 transition-all duration-200" />
-											)}
-
-											{/* Fallback for failed images */}
-											<div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center opacity-0 hover:opacity-20 transition-opacity">
-												<span className="text-white text-xl font-semibold">
-													{banner.name}
-												</span>
-											</div>
-										</div>
-									</Card>
-								</CarouselItem>
-							);
-						})}
+						{/* SOLUSI: Hook dipanggil di dalam BannerItem, bukan di map */}
+						{ProductBanners.map((banner, index) => (
+							<BannerItem
+								key={banner.id}
+								banner={banner}
+								index={index}
+								altPrefix="Product Page Banner"
+								gradientColors="from-blue-500 to-purple-600"
+							/>
+						))}
 					</CarouselContent>
 					{ProductBanners.length > 1 && (
 						<>
