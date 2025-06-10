@@ -29,141 +29,117 @@ import {
 	Pencil,
 	Trash2,
 	Search,
+	Eye,
 	RefreshCw,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { formatRupiah, formatDate } from "@/lib/utils";
-import DeleteProductDialog from "@/components/admin/delete-product-dialog";
+import { fetchAdminContent, deleteContent } from "@/lib/admin-api";
+import { formatDate } from "@/lib/utils";
+import DeleteContentDialog from "@/components/admin/delete-content-dialog";
 import { fetchAdminProducts, deleteProduct } from "@/lib/admin-api";
 
-interface Product {
-	_id: string;
-	id?: string; // Added as it might come from API
-	namaProduk: string;
-	deskripsi: string;
-	harga: number;
-	stok: number;
-	isForRent: boolean;
-	isForSale: boolean;
-	kategori: string;
-	gambar: string;
-	cloudinary_id?: string;
-	createdAt: string;
+interface Content {
+	id: string | number;
+	title: string;
 	slug: string;
+	contentType: string;
+	createdAt: string;
+	isActive?: boolean;
 }
 
 // Mock data for development mode
-const MOCK_PRODUCTS: Product[] = [
+const MOCK_CONTENT: Content[] = [
 	{
-		_id: "682a9282400056a7c4ed8910",
-		namaProduk: "TaffLED Lampu Tenda",
-		deskripsi: "TaffLED Lampu Tenda",
-		harga: 20000,
-		stok: 1,
-		isForRent: false, // Pastikan hanya satu yang true
-		isForSale: true, // dan yang lain false
-		kategori: "Lampu",
-		gambar:
-			"https://res.cloudinary.com/dpsslfumw/image/upload/v1747620482/camping-store/products/lfvamjo6uyjpqbyzxlbs.jpg",
-		cloudinary_id: "camping-store/products/lfvamjo6uyjpqbyzxlbs",
-		createdAt: "2025-05-19T02:08:02.902Z",
-		slug: "taffled-lampu-tenda-482906",
+		id: "6826d135dddc290d62610cb8", // Using real ID from example
+		title: "Libur Hari Raya Idul Adha 1446 H",
+		slug: "libur-hari-raya-idul-adha-1446-h-389116",
+		contentType: "announcement",
+		createdAt: "2025-05-16T05:46:29.114Z",
+		isActive: true,
 	},
 	{
-		_id: "682a92b8400056a7c4ed8912",
-		namaProduk: "Tenda Dome Kapasitas 4 Orang",
-		deskripsi: "Tenda dome kapasitas 4 orang dengan lapisan waterproof",
-		harga: 100000,
-		stok: 5,
-		isForRent: true, // Contoh produk rental
-		isForSale: false, // Pastikan yang lain false
-		kategori: "Tenda",
-		gambar:
-			"https://res.cloudinary.com/dpsslfumw/image/upload/v1747620482/camping-store/products/abcdef123456.jpg",
-		cloudinary_id: "camping-store/products/abcdef123456",
-		createdAt: "2025-05-19T02:10:02.902Z",
-		slug: "tenda-dome-kapasitas-4-orang-123456",
+		id: "2",
+		title: "Promo Akhir Tahun",
+		slug: "promo-akhir-tahun-123456",
+		contentType: "promotion",
+		createdAt: "2025-04-10T08:30:00.000Z",
+		isActive: true,
+	},
+	{
+		id: "3",
+		title: "Tips Camping untuk Pemula",
+		slug: "tips-camping-untuk-pemula-789012",
+		contentType: "article",
+		createdAt: "2025-03-22T14:15:00.000Z",
+		isActive: true,
 	},
 ];
 
-export default function AdminProductsPage() {
+export default function AdminContentPage() {
 	const router = useRouter();
 	const { toast } = useToast();
-	const [products, setProducts] = useState<Product[]>([]);
+	const [content, setContent] = useState<Content[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-	const [productToDelete, setProductToDelete] = useState<string | null>(null);
+	const [contentToDelete, setContentToDelete] = useState<
+		string | number | null
+	>(null);
 	const [useMockData, setUseMockData] = useState(false);
 
 	useEffect(() => {
-		fetchProductData();
+		fetchContentData();
 	}, []);
 
-	const fetchProductData = async () => {
+	const fetchContentData = async () => {
 		setIsLoading(true);
 		setError(null);
 		setUseMockData(false);
 
 		try {
-			console.log("Fetching products for admin panel...");
-			const result = await fetchAdminProducts();
-			console.log("Admin products data:", result);
+			console.log("Fetching content for admin panel...");
+			const data = await fetchAdminContent();
+			console.log("Admin content data:", data);
 
-			// Check if the data is correctly structured
-			if (result && Array.isArray(result.products)) {
-				// Map the products to ensure consistent format
-				const formattedProducts = result.products.map((product) => ({
-					_id: product._id || product.id,
-					id: product.id,
-					namaProduk: product.namaProduk,
-					deskripsi: product.deskripsi || "",
-					harga: product.harga,
-					stok: product.stok,
-					isForRent: product.isForRent || false,
-					isForSale: product.isForSale || true,
-					kategori: product.kategori || "",
-					gambar: product.gambar || "",
-					createdAt: product.createdAt || new Date().toISOString(),
-					slug: product.slug || "",
-				}));
-
-				setProducts(formattedProducts);
+			if (Array.isArray(data.content) && data.content.length > 0) {
+				setContent(data.content);
 			} else {
-				console.warn("Unexpected products data format:", result);
+				console.warn("Unexpected content data format or empty content:", data);
 
 				// In development mode, use mock data
 				if (process.env.NODE_ENV === "development") {
 					console.log("Using mock data in development mode");
-					setProducts(MOCK_PRODUCTS);
+					setContent(MOCK_CONTENT);
 					setUseMockData(true);
 					setError(
 						"Menggunakan data contoh karena API tidak tersedia. Ini hanya untuk mode pengembangan."
 					);
 				} else {
-					setProducts([]);
-					setError("Data produk tidak dalam format yang diharapkan");
+					setContent([]);
+					setError(
+						"Data konten tidak dalam format yang diharapkan atau tidak ada konten yang tersedia"
+					);
 				}
 			}
 		} catch (error) {
-			console.error("Error fetching products:", error);
+			console.error("Error fetching content:", error);
 
 			// In development mode, use mock data
 			if (process.env.NODE_ENV === "development") {
 				console.log("Using mock data in development mode due to error");
-				setProducts(MOCK_PRODUCTS);
+				setContent(MOCK_CONTENT);
 				setUseMockData(true);
 				setError(
-					"Gagal memuat data produk. Menggunakan data contoh untuk mode pengembangan."
+					"Gagal memuat data konten. Menggunakan data contoh untuk mode pengembangan."
 				);
 			} else {
-				setProducts([]);
-				setError("Gagal memuat data produk. Silakan coba lagi.");
+				setContent([]);
+				setError("Gagal memuat data konten. Silakan coba lagi.");
 				toast({
 					title: "Error",
-					description: "Gagal memuat data produk",
+					description: "Gagal memuat data konten",
 					variant: "destructive",
 				});
 			}
@@ -175,16 +151,16 @@ export default function AdminProductsPage() {
 	const refreshData = async () => {
 		setIsRefreshing(true);
 		try {
-			await fetchProductData();
+			await fetchContentData();
 			toast({
 				title: "Berhasil",
-				description: "Data produk berhasil diperbarui",
+				description: "Data konten berhasil diperbarui",
 			});
 		} catch (error) {
-			console.error("Error refreshing products:", error);
+			console.error("Error refreshing content:", error);
 			toast({
 				title: "Error",
-				description: "Gagal memperbarui data produk",
+				description: "Gagal memperbarui data konten",
 				variant: "destructive",
 			});
 		} finally {
@@ -192,16 +168,13 @@ export default function AdminProductsPage() {
 		}
 	};
 
-	const handleDeleteClick = (id: string) => {
-		console.log(`Delete clicked for product ID: ${id}`);
-		setProductToDelete(id);
+	const handleDeleteClick = (id: string | number) => {
+		setContentToDelete(id);
 		setDeleteDialogOpen(true);
 	};
 
 	const handleDeleteConfirm = async () => {
 		if (!productToDelete) return;
-
-		console.log(`Confirming deletion of product ID: ${productToDelete}`);
 
 		try {
 			if (useMockData) {
@@ -216,15 +189,10 @@ export default function AdminProductsPage() {
 				});
 			} else {
 				// Real deletion
-				console.log(`Calling deleteProduct API for ID: ${productToDelete}`);
 				await deleteProduct(productToDelete);
-				console.log(`Product with ID ${productToDelete} successfully deleted`);
-
-				// Update the UI by removing the deleted product
 				setProducts(
 					products.filter((product) => product._id !== productToDelete)
 				);
-
 				toast({
 					title: "Berhasil",
 					description: "Produk telah dihapus",
@@ -243,19 +211,19 @@ export default function AdminProductsPage() {
 		}
 	};
 
-	const filteredProducts = products.filter(
-		(product) =>
-			product.namaProduk?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			product.kategori?.toLowerCase().includes(searchQuery.toLowerCase())
+	const filteredContent = content.filter(
+		(item) =>
+			item.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			item.contentType?.toLowerCase().includes(searchQuery.toLowerCase())
 	);
 
 	return (
 		<div className="space-y-6">
 			<div className="flex justify-between items-center">
 				<div>
-					<h2 className="text-2xl font-bold">Manajemen Produk</h2>
+					<h2 className="text-2xl font-bold">Manajemen Konten</h2>
 					<p className="text-gray-500">
-						Kelola produk yang ditampilkan di website
+						Kelola artikel dan konten yang ditampilkan di website
 					</p>
 				</div>
 				<div className="flex gap-2">
@@ -269,9 +237,9 @@ export default function AdminProductsPage() {
 						Refresh
 					</Button>
 					<Button asChild>
-						<Link href="/admin/produk/tambah">
+						<Link href="/admin/konten/tambah">
 							<Plus className="h-4 w-4 mr-2" />
-							Tambah Produk
+							Tambah Konten
 						</Link>
 					</Button>
 				</div>
@@ -292,7 +260,7 @@ export default function AdminProductsPage() {
 				<div className="relative flex-1 max-w-sm">
 					<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
 					<Input
-						placeholder="Cari produk..."
+						placeholder="Cari konten..."
 						value={searchQuery}
 						onChange={(e) => setSearchQuery(e.target.value)}
 						className="pl-10"
@@ -305,50 +273,34 @@ export default function AdminProductsPage() {
 					<div className="flex justify-center items-center p-8">
 						<Loader2 className="h-8 w-8 animate-spin text-primary-dark" />
 					</div>
-				) : filteredProducts.length === 0 ? (
+				) : filteredContent.length === 0 ? (
 					<div className="text-center p-8 text-gray-500">
 						{searchQuery
-							? "Tidak ada produk yang sesuai dengan pencarian"
-							: "Belum ada produk"}
+							? "Tidak ada konten yang sesuai dengan pencarian"
+							: "Belum ada konten"}
 					</div>
 				) : (
 					<Table>
 						<TableHeader>
 							<TableRow>
-								<TableHead>Nama Produk</TableHead>
-								<TableHead>Kategori</TableHead>
-								<TableHead>Harga</TableHead>
-								<TableHead>Stok</TableHead>
+								<TableHead>Judul</TableHead>
+								<TableHead>Tipe</TableHead>
+								<TableHead>Tanggal Dibuat</TableHead>
 								<TableHead>Status</TableHead>
 								<TableHead className="text-right">Aksi</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{filteredProducts.map((product) => (
-								<TableRow key={product._id}>
-									<TableCell className="font-medium">
-										{product.namaProduk}
-									</TableCell>
-									<TableCell>{product.kategori}</TableCell>
-									<TableCell>{formatRupiah(product.harga)}</TableCell>
-									<TableCell>{product.stok}</TableCell>
+							{filteredContent.map((item) => (
+								<TableRow key={item.id}>
+									<TableCell className="font-medium">{item.title}</TableCell>
+									<TableCell>{item.contentType}</TableCell>
+									<TableCell>{formatDate(item.createdAt)}</TableCell>
 									<TableCell>
-										<div className="flex flex-wrap gap-1">
-											{product.isForRent && !product.isForSale && (
-												<Badge
-													variant="outline"
-													className="bg-blue-50 text-blue-700 border-blue-200">
-													Disewakan
-												</Badge>
-											)}
-											{product.isForSale && !product.isForRent && (
-												<Badge
-													variant="outline"
-													className="bg-green-50 text-green-700 border-green-200">
-													Dijual
-												</Badge>
-											)}
-										</div>
+										<Badge
+											variant={item.isActive === false ? "outline" : "default"}>
+											{item.isActive === false ? "Draft" : "Published"}
+										</Badge>
 									</TableCell>
 									<TableCell className="text-right">
 										<DropdownMenu>
@@ -360,16 +312,22 @@ export default function AdminProductsPage() {
 											<DropdownMenuContent align="end">
 												<DropdownMenuLabel>Aksi</DropdownMenuLabel>
 												<DropdownMenuSeparator />
+												<DropdownMenuItem asChild>
+													<Link href={`/blog/${item.slug}`} target="_blank">
+														<Eye className="h-4 w-4 mr-2" />
+														Lihat
+													</Link>
+												</DropdownMenuItem>
 												<DropdownMenuItem
 													onClick={() =>
-														router.push(`/admin/produk/edit/${product._id}`)
+														router.push(`/admin/konten/edit/${item.id}`)
 													}>
 													<Pencil className="h-4 w-4 mr-2" />
 													Edit
 												</DropdownMenuItem>
 												<DropdownMenuItem
 													className="text-red-600"
-													onClick={() => handleDeleteClick(product._id)}>
+													onClick={() => handleDeleteClick(item.id)}>
 													<Trash2 className="h-4 w-4 mr-2" />
 													Hapus
 												</DropdownMenuItem>
@@ -383,7 +341,7 @@ export default function AdminProductsPage() {
 				)}
 			</div>
 
-			<DeleteProductDialog
+			<DeleteContentDialog
 				open={deleteDialogOpen}
 				onOpenChange={setDeleteDialogOpen}
 				onConfirm={handleDeleteConfirm}

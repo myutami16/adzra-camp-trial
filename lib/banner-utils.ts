@@ -13,6 +13,7 @@ export function normalizeBannerData(data: any) {
 		location: data.location || "homepage",
 		isActive: data.isActive !== undefined ? data.isActive : true,
 		createdAt: data.createdAt || new Date().toISOString(),
+		targetUrl: data.targetUrl || "", // ✅ added support for redirect URL
 	};
 }
 

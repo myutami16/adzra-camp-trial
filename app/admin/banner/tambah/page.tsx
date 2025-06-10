@@ -35,6 +35,7 @@ export default function TambahBannerPage() {
 	const [formData, setFormData] = useState({
 		location: "",
 		isActive: true,
+		targetUrl: "", // Added targetUrl field
 		image: null as File | null,
 	});
 
@@ -240,9 +241,15 @@ export default function TambahBannerPage() {
 			submitData.append("location", formData.location);
 			submitData.append("isActive", formData.isActive.toString());
 
+			// Add targetUrl if provided
+			if (formData.targetUrl.trim()) {
+				submitData.append("targetUrl", formData.targetUrl.trim());
+			}
+
 			console.log("Submitting banner data:", {
 				location: formData.location,
 				isActive: formData.isActive,
+				targetUrl: formData.targetUrl.trim(),
 				imageSize: formData.image?.size,
 				imageType: formData.image?.type,
 			});
@@ -452,6 +459,30 @@ export default function TambahBannerPage() {
 							</p>
 						</div>
 
+						{/* Target URL */}
+						<div className="space-y-2">
+							<Label htmlFor="targetUrl" className="text-sm font-medium">
+								Link Tujuan (Opsional)
+							</Label>
+							<Input
+								id="targetUrl"
+								type="url"
+								value={formData.targetUrl}
+								onChange={(e) =>
+									setFormData((prev) => ({
+										...prev,
+										targetUrl: e.target.value,
+									}))
+								}
+								placeholder="https://example.com atau /halaman-internal"
+								className="w-full"
+							/>
+							<p className="text-xs text-gray-500">
+								URL lengkap (https://...) atau path internal (/halaman).
+								Kosongkan jika banner tidak perlu diklik.
+							</p>
+						</div>
+
 						{/* Active Status */}
 						<div className="flex items-center justify-between">
 							<div className="space-y-0.5">
@@ -528,6 +559,14 @@ export default function TambahBannerPage() {
 						<p className="text-sm text-gray-600">
 							Anda dapat mengedit area crop setelah upload dengan klik tombol
 							crop
+						</p>
+					</div>
+					<div className="flex items-start gap-2">
+						<div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+						<p className="text-sm text-gray-600">
+							<strong>Link Tujuan:</strong> Jika diisi, banner akan dapat diklik
+							dan mengarahkan ke URL yang ditentukan. Biarkan kosong jika banner
+							hanya untuk tampilan.
 						</p>
 					</div>
 				</CardContent>

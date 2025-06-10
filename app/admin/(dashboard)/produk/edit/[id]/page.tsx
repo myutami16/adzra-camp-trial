@@ -420,7 +420,8 @@ export default function EditProductPage({
 											name="editProductStatus"
 											value="sale"
 											checked={
-												form.watch("isForSale") && !form.watch("isForRent")
+												form.watch("isForSale") === true &&
+												form.watch("isForRent") === false
 											}
 											onChange={() => {
 												form.setValue("isForSale", true);
@@ -442,7 +443,8 @@ export default function EditProductPage({
 											name="editProductStatus"
 											value="rent"
 											checked={
-												form.watch("isForRent") && !form.watch("isForSale")
+												form.watch("isForRent") === true &&
+												form.watch("isForSale") === false
 											}
 											onChange={() => {
 												form.setValue("isForSale", false);

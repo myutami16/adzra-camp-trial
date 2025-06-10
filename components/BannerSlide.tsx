@@ -12,6 +12,7 @@ import {
 	CarouselApi,
 } from "@/components/ui/carousel";
 import { getHomepageBanners, type Banner } from "@/lib/api";
+import { useBannerClick } from "@/hooks/banner_hooks";
 
 const BannerSlider = () => {
 	const [api, setApi] = useState<CarouselApi>();
@@ -23,12 +24,14 @@ const BannerSlider = () => {
 			name: "Promo Ramadhan",
 			image: "/Banner/banner1.jpg",
 			href: "/promo/ramadhan",
+			targetUrl: "/promo/ramadhan", // Added for consistency
 		},
 		{
 			id: 2,
 			name: "Diskon Spesial",
 			image: "/Banner/banner2.webp",
 			href: "/promo/diskon",
+			targetUrl: "/promo/diskon", // Added for consistency
 		},
 	]);
 
@@ -51,7 +54,10 @@ const BannerSlider = () => {
 							id: banner.id || index + 1,
 							name: `Homepage Banner ${index + 1}`,
 							image: banner.image,
-							href: "#",
+							href: banner.targetUrl || "#",
+							targetUrl: banner.targetUrl || "", // Add targetUrl from API
+							location: "homepage", // Add location for banner actions
+							isActive: banner.isActive !== undefined ? banner.isActive : true,
 						})
 					);
 					console.log("Transformed homepage banners:", transformedBanners);
@@ -137,55 +143,85 @@ const BannerSlider = () => {
 						loop: true,
 					}}>
 					<CarouselContent className="h-full -ml-0">
-						{banners.map((banner, index) => (
-							<CarouselItem key={banner.id} className="h-full pl-0">
-								<Card className="h-full overflow-hidden border-0 rounded-none">
-									<div className="relative w-full h-full">
-										{/* Debug info overlay */}
-										{/* <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white text-xs p-2 rounded z-10">
-											Homepage Banner {index + 1}: {banner.name}
-											<br />
-											Image: {banner.image ? "✓" : "✗"}
-										</div> */}
+						{banners.map((banner, index) => {
+							// Use banner click hook for each banner
+							const { clickHandler, isClickable } = useBannerClick(banner, {
+								trackAnalytics: true,
+								preventDefault: true,
+							});
 
-										<Image
-											src={banner.image || "/placeholder.svg"}
-											alt={`Homepage Banner ${index + 1}`}
-											width={1440}
-											height={600}
-											className="w-full h-full object-cover object-center"
-											sizes="100vw"
-											priority={index === 0}
-											quality={90}
-											onError={(e) => {
-												console.error(
-													`Failed to load homepage image: ${banner.image}`
-												);
-												const target = e.currentTarget as HTMLImageElement;
-												target.src = "/placeholder.svg";
-											}}
-											onLoad={() => {
-												console.log(
-													`Homepage image loaded successfully: ${banner.image}`
-												);
-											}}
-											onLoadStart={() => {
-												console.log(
-													`Starting to load homepage image: ${banner.image}`
-												);
-											}}
-										/>
+							return (
+								<CarouselItem key={banner.id} className="h-full pl-0">
+									<Card className="h-full overflow-hidden border-0 rounded-none">
+										<div
+											className={`relative w-full h-full ${
+												isClickable ? "cursor-pointer" : "cursor-default"
+											}`}
+											onClick={clickHandler}
+											role={isClickable ? "button" : undefined}
+											tabIndex={isClickable ? 0 : undefined}
+											onKeyDown={(e) => {
+												if (
+													isClickable &&
+													(e.key === "Enter" || e.key === " ")
+												) {
+													e.preventDefault();
+													clickHandler(e as any);
+												}
+											}}>
+											{/* Debug info overlay */}
+											{/* <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white text-xs p-2 rounded z-10">
+												Homepage Banner {index + 1}: {banner.name}
+												<br />
+												Image: {banner.image ? "✓" : "✗"}
+												<br />
+												Clickable: {isClickable ? "✓" : "✗"}
+											</div> */}
 
-										{/* Fallback for failed images */}
-										<div className="absolute inset-0 bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center opacity-0 hover:opacity-20 transition-opacity">
-											<span className="text-white text-xl font-semibold">
-												{banner.name}
-											</span>
+											<Image
+												src={banner.image || "/placeholder.svg"}
+												alt={`Homepage Banner ${index + 1}`}
+												width={1440}
+												height={600}
+												className="w-full h-full object-cover object-center"
+												sizes="100vw"
+												priority={index === 0}
+												quality={90}
+												onError={(e) => {
+													console.error(
+														`Failed to load homepage image: ${banner.image}`
+													);
+													const target = e.currentTarget as HTMLImageElement;
+													target.src = "/placeholder.svg";
+												}}
+												onLoad={() => {
+													console.log(
+														`Homepage image loaded successfully: ${banner.image}`
+													);
+												}}
+												onLoadStart={() => {
+													console.log(
+														`Starting to load homepage image: ${banner.image}`
+													);
+												}}
+											/>
+
+											{/* Clickable indicator overlay */}
+											{isClickable && (
+												<div className="absolute inset-0 bg-transparent hover:bg-black hover:bg-opacity-10 transition-all duration-200" />
+											)}
+
+											{/* Fallback for failed images */}
+											<div className="absolute inset-0 bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center opacity-0 hover:opacity-20 transition-opacity">
+												<span className="text-white text-xl font-semibold">
+													{banner.name}
+												</span>
+											</div>
 										</div>
-									</div>
-								</Card>
-							</CarouselItem>
-						))}
+									</Card>
+								</CarouselItem>
+							);
+						})}
 					</CarouselContent>
 					{banners.length > 1 && (
 						<>

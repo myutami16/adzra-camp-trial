@@ -62,6 +62,7 @@ export interface Banner {
 	image: string;
 	cloudinary_id?: string;
 	location: "homepage" | "productpage";
+	targetUrl?: string;
 	isActive: boolean;
 	createdAt: string;
 }
@@ -578,12 +579,17 @@ export async function getProductCategories(): Promise<string[]> {
 		console.log("Using default categories as fallback");
 		return [
 			"Tenda Camping",
-			"Aksesori",
+			"Matras & Sleeping Kit",
 			"Sleeping Bag",
-			"Perlengkapan Outdoor & Survival",
-			"Lampu",
-			"Carrier & Ransel",
-			"Peralatan Memasak Outdoor",
+			"Carrier & Daypack",
+			"Flysheet & Aksesorinya",
+			"Meja & Kursi Lipat",
+			"Peralatan Masak Outdoor & Grill Kit",
+			"Trekking Pole",
+			"Lampu & Penerangan Outdoor",
+			"Pisau Lipat & Peralatan Survival",
+			"Aksesori Tambahan",
+			"Paket Komplit Camping",
 			"Lain-lain",
 		];
 	} catch (error) {
@@ -591,12 +597,17 @@ export async function getProductCategories(): Promise<string[]> {
 		// Return default categories on error
 		return [
 			"Tenda Camping",
-			"Aksesori",
+			"Matras & Sleeping Kit",
 			"Sleeping Bag",
-			"Perlengkapan Outdoor & Survival",
-			"Lampu",
-			"Carrier & Ransel",
-			"Peralatan Memasak Outdoor",
+			"Carrier & Daypack",
+			"Flysheet & Aksesorinya",
+			"Meja & Kursi Lipat",
+			"Peralatan Masak Outdoor & Grill Kit",
+			"Trekking Pole",
+			"Lampu & Penerangan Outdoor",
+			"Pisau Lipat & Peralatan Survival",
+			"Aksesori Tambahan",
+			"Paket Komplit Camping",
 			"Lain-lain",
 		];
 	}
@@ -704,6 +715,7 @@ export async function fetchBanners(
 				image: item.image,
 				cloudinary_id: item.cloudinary_id,
 				location: item.location,
+				targetUrl: item.targetUrl,
 				isActive: item.isActive,
 				createdAt: item.createdAt,
 			}));
