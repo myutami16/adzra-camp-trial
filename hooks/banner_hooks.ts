@@ -7,7 +7,7 @@ import {
 	createBannerClickHandler,
 	prepareBannerForClick,
 	BannerClickData,
-} from "@/lib/banner-actions";
+} from "@/lib/banner_actions";
 
 /**
  * Hook for handling banner clicks with built-in optimization
