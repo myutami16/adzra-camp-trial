@@ -92,7 +92,7 @@ const BannerSlider = () => {
 			} else {
 				api.scrollTo(0);
 			}
-		}, 3000);
+		}, 5000);
 
 		return () => clearInterval(autoSlide);
 	}, [api]);

@@ -334,14 +334,14 @@ export default function AdminProductsPage() {
 									<TableCell>{product.stok}</TableCell>
 									<TableCell>
 										<div className="flex flex-wrap gap-1">
-											{product.isForRent && !product.isForSale && (
+											{product.isForRent && (
 												<Badge
 													variant="outline"
 													className="bg-blue-50 text-blue-700 border-blue-200">
 													Disewakan
 												</Badge>
 											)}
-											{product.isForSale && !product.isForRent && (
+											{product.isForSale && (
 												<Badge
 													variant="outline"
 													className="bg-green-50 text-green-700 border-green-200">

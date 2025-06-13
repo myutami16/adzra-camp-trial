@@ -94,7 +94,7 @@ const ProductBanner = () => {
 			} else {
 				api.scrollTo(0);
 			}
-		}, 10000); // 10 seconds
+		}, 5000); // 10 seconds
 
 		return () => clearInterval(autoSlide);
 	}, [api]);

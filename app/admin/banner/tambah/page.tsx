@@ -466,7 +466,7 @@ export default function TambahBannerPage() {
 							</Label>
 							<Input
 								id="targetUrl"
-								type="url"
+								type="text"
 								value={formData.targetUrl}
 								onChange={(e) =>
 									setFormData((prev) => ({
