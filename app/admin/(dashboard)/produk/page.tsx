@@ -123,7 +123,7 @@ export default function AdminProductsPage() {
 					harga: product.harga,
 					stok: product.stok,
 					isForRent: product.isForRent || false,
-					isForSale: product.isForSale || true,
+					isForSale: product.isForSale || false,
 					kategori: product.kategori || "",
 					gambar: product.gambar || "",
 					createdAt: product.createdAt || new Date().toISOString(),
