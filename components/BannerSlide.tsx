@@ -100,7 +100,8 @@ const BannerSlider = () => {
 	if (loading) {
 		return (
 			<div className="w-full mb-8">
-				<div className="w-full h-[600px] bg-gray-200 animate-pulse flex items-center justify-center">
+				{/* Updated: Fixed aspect ratio container for 2.4:1 (1440x600) */}
+				<div className="w-full aspect-[2.4/1] bg-gray-200 animate-pulse flex items-center justify-center">
 					<span className="text-gray-500">Loading homepage banners...</span>
 				</div>
 			</div>
@@ -110,7 +111,8 @@ const BannerSlider = () => {
 	if (error) {
 		return (
 			<div className="w-full mb-8">
-				<div className="w-full h-[600px] bg-red-100 flex items-center justify-center">
+				{/* Updated: Fixed aspect ratio container for 2.4:1 (1440x600) */}
+				<div className="w-full aspect-[2.4/1] bg-red-100 flex items-center justify-center">
 					<span className="text-red-500">Error: {error}</span>
 				</div>
 			</div>
@@ -120,7 +122,8 @@ const BannerSlider = () => {
 	if (banners.length === 0) {
 		return (
 			<div className="w-full mb-8">
-				<div className="w-full h-[600px] bg-gray-100 flex items-center justify-center">
+				{/* Updated: Fixed aspect ratio container for 2.4:1 (1440x600) */}
+				<div className="w-full aspect-[2.4/1] bg-gray-100 flex items-center justify-center">
 					<span className="text-gray-500">No homepage banners available</span>
 				</div>
 			</div>
@@ -129,7 +132,8 @@ const BannerSlider = () => {
 
 	return (
 		<div className="w-full mb-8">
-			<div className="w-full h-[600px] relative overflow-hidden">
+			{/* Updated: Container with proper aspect ratio for 2.4:1 banners */}
+			<div className="w-full aspect-[2.4/1] relative overflow-hidden">
 				<Carousel
 					setApi={setApi}
 					className="w-full h-full"

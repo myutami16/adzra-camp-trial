@@ -1,4 +1,4 @@
-// Solusi 1: Ekstrak ke komponen terpisah (RECOMMENDED)
+// BannerItem.tsx - Updated for 2.4:1 aspect ratio (1440x600)
 import { useBannerClick } from "@/hooks/banner_hooks";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
@@ -47,6 +47,7 @@ const BannerItem: React.FC<BannerItemProps> = ({
 							clickHandler(e as any);
 						}
 					}}>
+					{/* Updated: Use object-cover instead of object-contain for full-width display */}
 					<Image
 						src={banner.image || "/placeholder.svg"}
 						alt={`${altPrefix} ${index + 1}`}
@@ -68,7 +69,7 @@ const BannerItem: React.FC<BannerItemProps> = ({
 						<div className="absolute inset-0 bg-transparent hover:bg-black hover:bg-opacity-10 transition-all duration-200" />
 					)}
 
-					{/* Fallback for failed images */}
+					{/* Fallback for failed images - Updated gradient positioning */}
 					<div
 						className={`absolute inset-0 bg-gradient-to-br ${gradientColors} flex items-center justify-center opacity-0 hover:opacity-20 transition-opacity`}>
 						<span className="text-white text-xl font-semibold">

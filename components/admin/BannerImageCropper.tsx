@@ -27,8 +27,8 @@ export default function BannerImageCropper({
 	const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
 	const [loading, setLoading] = useState(false);
 
-	// Banner aspect ratio 16:9
-	const BANNER_ASPECT_RATIO = 16 / 9;
+	// Banner aspect ratio 2.4:1 (1440x600)
+	const BANNER_ASPECT_RATIO = 2.4;
 
 	const onCropCompleteInternal = useCallback(
 		(_: any, croppedAreaPixels: any) => {
@@ -94,7 +94,7 @@ export default function BannerImageCropper({
 				<div>
 					<CardTitle className="text-lg">Crop Banner Image</CardTitle>
 					<p className="text-sm text-gray-600 mt-1">
-						Pilih area gambar dengan rasio 16:9
+						Pilih area gambar dengan rasio 2.4:1 (1440x600px)
 					</p>
 				</div>
 				<Button
@@ -192,7 +192,7 @@ export default function BannerImageCropper({
 							<ul className="text-blue-700 space-y-1">
 								<li>• Drag untuk memindahkan area crop</li>
 								<li>• Gunakan slider untuk zoom in/out</li>
-								<li>• Rasio aspek otomatis terkunci pada 16:9</li>
+								<li>• Rasio aspek otomatis terkunci pada 2.4:1 (1440x600px)</li>
 							</ul>
 						</div>
 					</div>

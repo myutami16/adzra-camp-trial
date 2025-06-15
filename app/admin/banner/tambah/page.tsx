@@ -356,7 +356,7 @@ export default function TambahBannerPage() {
 								}`}>
 								{imagePreview ? (
 									<div className="relative">
-										<div className="aspect-video relative rounded-lg overflow-hidden">
+										<div className="aspect-[2.4] relative rounded-lg overflow-hidden">
 											<Image
 												src={imagePreview}
 												alt="Preview banner"
@@ -388,7 +388,7 @@ export default function TambahBannerPage() {
 												<>
 													{Math.round(formData.image.size / 1024)}KB
 													<span className="mx-1">•</span>
-													16:9 Ratio
+													2.4:1 Ratio
 												</>
 											)}
 										</div>
@@ -404,7 +404,7 @@ export default function TambahBannerPage() {
 												Format: JPG, PNG • Maksimal: 5MB untuk crop
 											</p>
 											<p className="text-xs text-blue-600 font-medium">
-												Akan otomatis crop ke rasio 16:9 (1440x600px minimum)
+												Akan otomatis crop ke rasio 2.4:1 (1440x600px minimum)
 											</p>
 											{!formData.image && (
 												<p className="text-xs text-red-500">
@@ -531,7 +531,7 @@ export default function TambahBannerPage() {
 					<div className="flex items-start gap-2">
 						<div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
 						<p className="text-sm text-gray-600">
-							Semua gambar akan otomatis di-crop ke rasio 16:9 dengan minimum
+							Semua gambar akan otomatis di-crop ke rasio 2.4:1 dengan minimum
 							1440x600 piksel
 						</p>
 					</div>
