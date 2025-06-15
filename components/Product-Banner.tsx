@@ -1,17 +1,15 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import Image from "next/image";
-import { Card } from "@/components/ui/card";
+import { useState, useEffect } from "react";
 import {
 	Carousel,
 	CarouselContent,
-	CarouselItem,
 	CarouselNext,
 	CarouselPrevious,
 	CarouselApi,
 } from "@/components/ui/carousel";
 import { getProductPageBanners, type Banner } from "@/lib/api";
+import BannerItem from "./BannerItem"; // Import komponen BannerItem yang sama
 
 const ProductBanner = () => {
 	const [api, setApi] = useState<CarouselApi>();
@@ -23,12 +21,14 @@ const ProductBanner = () => {
 			name: "Promo Ramadhan",
 			image: "/Banner/banner1.jpg",
 			href: "/promo/ramadhan",
+			targetUrl: "/promo/ramadhan",
 		},
 		{
 			id: 2,
 			name: "Diskon Spesial",
 			image: "/Banner/banner2.webp",
 			href: "/promo/diskon",
+			targetUrl: "/promo/diskon",
 		},
 	]);
 
@@ -51,7 +51,10 @@ const ProductBanner = () => {
 							id: banner.id || index + 1,
 							name: `Product Banner ${index + 1}`,
 							image: banner.image,
-							href: "#", // Default href since API doesn't provide this
+							href: banner.targetUrl || "#",
+							targetUrl: banner.targetUrl || "", // Add targetUrl from API
+							location: "productpage", // Add location for banner actions
+							isActive: banner.isActive !== undefined ? banner.isActive : true,
 						})
 					);
 					console.log("Transformed product banners:", transformedBanners);
@@ -84,14 +87,14 @@ const ProductBanner = () => {
 			setCurrent(api.selectedScrollSnap());
 		});
 
-		// Auto-slide functionality
+		// Auto-slide functionality - 5 seconds untuk product page
 		const autoSlide = setInterval(() => {
 			if (api.canScrollNext()) {
 				api.scrollNext();
 			} else {
 				api.scrollTo(0);
 			}
-		}, 10000); // 10 seconds
+		}, 5000); // 5 seconds
 
 		return () => clearInterval(autoSlide);
 	}, [api]);
@@ -99,7 +102,8 @@ const ProductBanner = () => {
 	if (loading) {
 		return (
 			<div className="w-full mb-8">
-				<div className="w-full h-[600px] bg-gray-200 animate-pulse flex items-center justify-center">
+				{/* Updated: Fixed aspect ratio container for 2.4:1 (1440x600) */}
+				<div className="w-full aspect-[2.4/1] bg-gray-200 animate-pulse flex items-center justify-center">
 					<span className="text-gray-500">Loading banners...</span>
 				</div>
 			</div>
@@ -109,7 +113,8 @@ const ProductBanner = () => {
 	if (error) {
 		return (
 			<div className="w-full mb-8">
-				<div className="w-full h-[600px] bg-red-100 flex items-center justify-center">
+				{/* Updated: Fixed aspect ratio container for 2.4:1 (1440x600) */}
+				<div className="w-full aspect-[2.4/1] bg-red-100 flex items-center justify-center">
 					<span className="text-red-500">Error: {error}</span>
 				</div>
 			</div>
@@ -119,7 +124,8 @@ const ProductBanner = () => {
 	if (ProductBanners.length === 0) {
 		return (
 			<div className="w-full mb-8">
-				<div className="w-full h-[600px] bg-gray-100 flex items-center justify-center">
+				{/* Updated: Fixed aspect ratio container for 2.4:1 (1440x600) */}
+				<div className="w-full aspect-[2.4/1] bg-gray-100 flex items-center justify-center">
 					<span className="text-gray-500">No banners available</span>
 				</div>
 			</div>
@@ -128,7 +134,8 @@ const ProductBanner = () => {
 
 	return (
 		<div className="w-full mb-8">
-			<div className="w-full h-[600px] relative overflow-hidden">
+			{/* Updated: Container with proper aspect ratio for 2.4:1 banners */}
+			<div className="w-full aspect-[2.4/1] relative overflow-hidden">
 				<Carousel
 					setApi={setApi}
 					className="w-full h-full"
@@ -137,50 +144,15 @@ const ProductBanner = () => {
 						loop: true,
 					}}>
 					<CarouselContent className="h-full -ml-0">
+						{/* SOLUSI: Hook dipanggil di dalam BannerItem, bukan di map */}
 						{ProductBanners.map((banner, index) => (
-							<CarouselItem key={banner.id} className="h-full pl-0">
-								<Card className="h-full overflow-hidden border-0 rounded-none">
-									<div className="relative w-full h-full">
-										{/* Debug info overlay - remove in production */}
-										<div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white text-xs p-2 rounded z-10">
-											Banner {index + 1}: {banner.name}
-											<br />
-											Image: {banner.image ? "✓" : "✗"}
-										</div>
-
-										<Image
-											src={banner.image || "/placeholder.svg"}
-											alt={`Product Page Banner ${index + 1}`}
-											width={1440}
-											height={600}
-											className="w-full h-full object-cover object-center"
-											sizes="100vw"
-											priority={index === 0}
-											quality={90}
-											onError={(e) => {
-												console.error(`Failed to load image: ${banner.image}`);
-												const target = e.currentTarget as HTMLImageElement;
-												target.src = "/placeholder.svg";
-											}}
-											onLoad={() => {
-												console.log(
-													`Image loaded successfully: ${banner.image}`
-												);
-											}}
-											onLoadStart={() => {
-												console.log(`Starting to load image: ${banner.image}`);
-											}}
-										/>
-
-										{/* Fallback for failed images */}
-										<div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center opacity-0 hover:opacity-20 transition-opacity">
-											<span className="text-white text-xl font-semibold">
-												{banner.name}
-											</span>
-										</div>
-									</div>
-								</Card>
-							</CarouselItem>
+							<BannerItem
+								key={banner.id}
+								banner={banner}
+								index={index}
+								altPrefix="Product Page Banner"
+								gradientColors="from-blue-500 to-purple-600"
+							/>
 						))}
 					</CarouselContent>
 					{ProductBanners.length > 1 && (

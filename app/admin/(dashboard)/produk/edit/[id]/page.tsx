@@ -319,21 +319,40 @@ export default function EditProductPage({
 												<SelectItem value="Tenda Camping">
 													Tenda Camping
 												</SelectItem>
-												<SelectItem value="Aksesori">Aksesori</SelectItem>
+												<SelectItem value="Matras & Sleeping Kit">
+													Matras & Sleeping Kit
+												</SelectItem>
 												<SelectItem value="Sleeping Bag">
 													Sleeping Bag
 												</SelectItem>
-												<SelectItem value="Perlengkapan Outdoor & Survival">
-													Perlengkapan Outdoor & Survival
+												<SelectItem value="Carrier & Daypack">
+													Carrier & Daypack
 												</SelectItem>
-												<SelectItem value="Lampu">Lampu</SelectItem>
-												<SelectItem value="Carrier & Ransel">
-													Carrier & Ransel
+												<SelectItem value="Flysheet & Aksesorinya">
+													Flysheet & Aksesorinya
 												</SelectItem>
-												<SelectItem value="Peralatan Memasak Outdoor">
-													Peralatan Memasak Outdoor
+												<SelectItem value="Meja & Kursi Lipat">
+													Meja & Kursi Lipat
 												</SelectItem>
-												<SelectItem value="Lainnya">Lainnya</SelectItem>
+												<SelectItem value="Peralatan Masak Outdoor & Grill Kit">
+													Peralatan Masak Outdoor & Grill Kit
+												</SelectItem>
+												<SelectItem value="Trekking Pole">
+													Trekking Pole
+												</SelectItem>
+												<SelectItem value="Lampu & Penerangan Outdoor">
+													Lampu & Penerangan Outdoor
+												</SelectItem>
+												<SelectItem value="Pisau Lipat & Peralatan Survival">
+													Pisau Lipat & Peralatan Survival
+												</SelectItem>
+												<SelectItem value="Aksesori Tambahan">
+													Aksesori Tambahan
+												</SelectItem>
+												<SelectItem value="Paket Komplit Camping">
+													Paket Komplit Camping
+												</SelectItem>
+												<SelectItem value="Lain-lain">Lain-lain</SelectItem>
 											</SelectContent>
 										</Select>
 										<FormMessage />
@@ -401,7 +420,8 @@ export default function EditProductPage({
 											name="editProductStatus"
 											value="sale"
 											checked={
-												form.watch("isForSale") && !form.watch("isForRent")
+												form.watch("isForSale") === true &&
+												form.watch("isForRent") === false
 											}
 											onChange={() => {
 												form.setValue("isForSale", true);
@@ -423,7 +443,8 @@ export default function EditProductPage({
 											name="editProductStatus"
 											value="rent"
 											checked={
-												form.watch("isForRent") && !form.watch("isForSale")
+												form.watch("isForRent") === true &&
+												form.watch("isForSale") === false
 											}
 											onChange={() => {
 												form.setValue("isForSale", false);

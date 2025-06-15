@@ -19,6 +19,7 @@ yarn-error.log*
 
 # env files
 .env*
+camping-store-backend/
 
 # vercel
 .vercel

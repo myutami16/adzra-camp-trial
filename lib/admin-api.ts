@@ -1129,6 +1129,7 @@ export const createBanner = async (formData: FormData) => {
 	console.log("Creating banner with form data:", {
 		location: formData.get("location"),
 		isActive: formData.get("isActive"),
+		targetUrl: formData.get("targetUrl"),
 		hasImage: formData.has("image"),
 	});
 
@@ -1153,69 +1154,6 @@ export const createBanner = async (formData: FormData) => {
 	const result = await response.json();
 	console.log("Banner creation successful:", result);
 	return result;
-};
-
-// Fix for updateBanner function
-export const updateBanner = async (id: number | string, formData: FormData) => {
-	const token = getToken();
-
-	if (!token && process.env.NODE_ENV !== "development") {
-		throw new Error("Authentication token not found");
-	}
-
-	const authToken = token || "mock-dev-token";
-
-	try {
-		console.log(`Updating banner with ID: ${id}`, {
-			location: formData.get("location"),
-			isActive: formData.get("isActive"),
-			hasNewImage: formData.has("image"),
-		});
-
-		const response = await fetch(`${API_BASE_URL}/admin/Banner?id=${id}`, {
-			method: "PUT",
-			headers: {
-				Authorization: `Bearer ${authToken}`,
-			},
-			body: formData,
-		});
-
-		if (!response.ok) {
-			// Try fallback endpoint
-			console.log("First update attempt failed, trying fallback endpoint");
-			const fallbackResponse = await fetch(
-				`${API_BASE_URL}/admin/Banner/${id}`,
-				{
-					method: "PUT",
-					headers: {
-						Authorization: `Bearer ${authToken}`,
-					},
-					body: formData,
-				}
-			);
-
-			if (!fallbackResponse.ok) {
-				const error = await fallbackResponse
-					.json()
-					.catch(() => ({ message: "An error occurred" }));
-				throw new Error(
-					error.message ||
-						`Request failed with status ${fallbackResponse.status}`
-				);
-			}
-
-			const result = await fallbackResponse.json();
-			console.log("Banner update successful (fallback):", result);
-			return result;
-		}
-
-		const result = await response.json();
-		console.log("Banner update successful:", result);
-		return result;
-	} catch (error) {
-		console.error("Error in updateBanner:", error);
-		throw error;
-	}
 };
 
 export const deleteBanner = async (id: number | string) => {

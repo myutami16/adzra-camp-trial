@@ -7,7 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Edit, Eye, EyeOff, ImageIcon } from "lucide-react";
+import {
+	Plus,
+	Edit,
+	Eye,
+	EyeOff,
+	ImageIcon,
+	RefreshCw,
+	ExternalLink,
+} from "lucide-react";
 import { fetchAdminBanners, deleteBanner } from "@/lib/admin-api";
 import { toast } from "sonner";
 import DeleteBannerDialog from "@/components/admin/delete-banner-dialog";
@@ -21,6 +29,7 @@ interface Banner {
 	id: string;
 	image: string;
 	location: "homepage" | "productpage";
+	targetUrl?: string;
 	isActive: boolean;
 	createdAt: string;
 }
@@ -34,6 +43,7 @@ interface LocationStats {
 export default function BannerManagementPage() {
 	const [banners, setBanners] = useState<Banner[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [locationStats, setLocationStats] = useState<LocationStats>({});
 	const [activeTab, setActiveTab] = useState<
 		"all" | "homepage" | "productpage"
@@ -75,6 +85,20 @@ export default function BannerManagementPage() {
 			setBanners([]);
 		} finally {
 			setLoading(false);
+		}
+	};
+
+	// Refresh data function
+	const refreshData = async () => {
+		setIsRefreshing(true);
+		try {
+			await fetchBanners(activeTab === "all" ? undefined : activeTab);
+			toast.success("Data banner berhasil diperbarui");
+		} catch (error) {
+			console.error("Error refreshing banners:", error);
+			toast.error("Gagal memperbarui data banner");
+		} finally {
+			setIsRefreshing(false);
 		}
 	};
 
@@ -195,6 +219,17 @@ export default function BannerManagementPage() {
 		return stats ? stats.total >= 5 : false;
 	};
 
+	// Format target URL for display
+	const formatTargetUrl = (url?: string) => {
+		if (!url) return "Tidak ada link";
+
+		// Truncate long URLs for display
+		if (url.length > 30) {
+			return url.substring(0, 30) + "...";
+		}
+		return url;
+	};
+
 	if (loading && banners.length === 0) {
 		return (
 			<div className="space-y-6">
@@ -226,12 +261,23 @@ export default function BannerManagementPage() {
 						Kelola banner untuk homepage dan halaman produk
 					</p>
 				</div>
-				<Link href="/admin/banner/tambah">
-					<Button>
-						<Plus className="h-4 w-4 mr-2" />
-						Tambah Banner
+				<div className="flex gap-2">
+					<Button
+						variant="outline"
+						onClick={refreshData}
+						disabled={isRefreshing}>
+						<RefreshCw
+							className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`}
+						/>
+						Refresh
 					</Button>
-				</Link>
+					<Link href="/admin/banner/tambah">
+						<Button>
+							<Plus className="h-4 w-4 mr-2" />
+							Tambah Banner
+						</Button>
+					</Link>
+				</div>
 			</div>
 
 			{/* Statistics Cards */}
@@ -329,7 +375,7 @@ export default function BannerManagementPage() {
 											className="object-cover"
 											sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
 										/>
-										<div className="absolute top-2 right-2">
+										<div className="absolute top-2 right-2 flex gap-2">
 											<Badge
 												variant={banner.isActive ? "default" : "secondary"}
 												className={banner.isActive ? "bg-green-600" : ""}>
@@ -345,30 +391,38 @@ export default function BannerManagementPage() {
 													</>
 												)}
 											</Badge>
+											{banner.targetUrl && (
+												<Badge variant="outline" className="bg-white/90">
+													<ExternalLink className="h-3 w-3 mr-1" />
+													Link
+												</Badge>
+											)}
 										</div>
 									</div>
 
 									<CardContent className="p-4">
 										<div className="flex justify-between items-start mb-2">
-											<div>
+											<div className="flex-1">
 												<h3 className="font-medium">
 													{getLocationDisplayName(banner.location)}
 												</h3>
-												<p className="text-sm text-gray-500">
+												<p className="text-sm text-gray-500 mb-1">
 													{formatDate(banner.createdAt)}
 												</p>
+												{banner.targetUrl && (
+													<div className="flex items-center gap-1 mt-1">
+														<ExternalLink className="h-3 w-3 text-blue-500" />
+														<span
+															className="text-xs text-blue-600 truncate"
+															title={banner.targetUrl}>
+															{formatTargetUrl(banner.targetUrl)}
+														</span>
+													</div>
+												)}
 											</div>
 										</div>
 
 										<div className="flex gap-2 mt-4">
-											<Link
-												href={`/admin/banner/edit/${banner.id}`}
-												className="flex-1">
-												<Button variant="outline" size="sm" className="w-full">
-													<Edit className="h-4 w-4 mr-2" />
-													Edit
-												</Button>
-											</Link>
 											<DeleteBannerDialog
 												bannerId={banner.id}
 												bannerLocation={getLocationDisplayName(banner.location)}

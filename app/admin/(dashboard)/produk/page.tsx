@@ -60,8 +60,8 @@ const MOCK_PRODUCTS: Product[] = [
 		deskripsi: "TaffLED Lampu Tenda",
 		harga: 20000,
 		stok: 1,
-		isForRent: false,
-		isForSale: true,
+		isForRent: false, // Pastikan hanya satu yang true
+		isForSale: true, // dan yang lain false
 		kategori: "Lampu",
 		gambar:
 			"https://res.cloudinary.com/dpsslfumw/image/upload/v1747620482/camping-store/products/lfvamjo6uyjpqbyzxlbs.jpg",
@@ -75,8 +75,8 @@ const MOCK_PRODUCTS: Product[] = [
 		deskripsi: "Tenda dome kapasitas 4 orang dengan lapisan waterproof",
 		harga: 100000,
 		stok: 5,
-		isForRent: true,
-		isForSale: true,
+		isForRent: true, // Contoh produk rental
+		isForSale: false, // Pastikan yang lain false
 		kategori: "Tenda",
 		gambar:
 			"https://res.cloudinary.com/dpsslfumw/image/upload/v1747620482/camping-store/products/abcdef123456.jpg",
@@ -115,7 +115,7 @@ export default function AdminProductsPage() {
 			// Check if the data is correctly structured
 			if (result && Array.isArray(result.products)) {
 				// Map the products to ensure consistent format
-				const formattedProducts = result.products.map(product => ({
+				const formattedProducts = result.products.map((product) => ({
 					_id: product._id || product.id,
 					id: product.id,
 					namaProduk: product.namaProduk,
@@ -123,13 +123,13 @@ export default function AdminProductsPage() {
 					harga: product.harga,
 					stok: product.stok,
 					isForRent: product.isForRent || false,
-					isForSale: product.isForSale || true,
+					isForSale: product.isForSale || false,
 					kategori: product.kategori || "",
 					gambar: product.gambar || "",
 					createdAt: product.createdAt || new Date().toISOString(),
 					slug: product.slug || "",
 				}));
-				
+
 				setProducts(formattedProducts);
 			} else {
 				console.warn("Unexpected products data format:", result);
@@ -202,7 +202,7 @@ export default function AdminProductsPage() {
 		if (!productToDelete) return;
 
 		console.log(`Confirming deletion of product ID: ${productToDelete}`);
-		
+
 		try {
 			if (useMockData) {
 				// Simulate deletion in mock data
@@ -219,12 +219,12 @@ export default function AdminProductsPage() {
 				console.log(`Calling deleteProduct API for ID: ${productToDelete}`);
 				await deleteProduct(productToDelete);
 				console.log(`Product with ID ${productToDelete} successfully deleted`);
-				
+
 				// Update the UI by removing the deleted product
 				setProducts(
 					products.filter((product) => product._id !== productToDelete)
 				);
-				
+
 				toast({
 					title: "Berhasil",
 					description: "Produk telah dihapus",
@@ -334,18 +334,18 @@ export default function AdminProductsPage() {
 									<TableCell>{product.stok}</TableCell>
 									<TableCell>
 										<div className="flex flex-wrap gap-1">
-											{product.isForSale && (
-												<Badge
-													variant="outline"
-													className="bg-green-50 text-green-700 border-green-200">
-													Dijual
-												</Badge>
-											)}
 											{product.isForRent && (
 												<Badge
 													variant="outline"
 													className="bg-blue-50 text-blue-700 border-blue-200">
 													Disewakan
+												</Badge>
+											)}
+											{product.isForSale && (
+												<Badge
+													variant="outline"
+													className="bg-green-50 text-green-700 border-green-200">
+													Dijual
 												</Badge>
 											)}
 										</div>

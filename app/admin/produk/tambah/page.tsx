@@ -23,12 +23,17 @@ import { getToken } from "@/lib/auth";
 // Product categories
 const PRODUCT_CATEGORIES = [
 	"Tenda Camping",
-	"Aksesori",
+	"Matras & Sleeping Kit",
 	"Sleeping Bag",
-	"Perlengkapan Outdoor & Survival",
-	"Lampu",
-	"Carrier & Ransel",
-	"Peralatan Memasak Outdoor",
+	"Carrier & Daypack",
+	"Flysheet & Aksesorinya",
+	"Meja & Kursi Lipat",
+	"Peralatan Masak Outdoor & Grill Kit",
+	"Trekking Pole",
+	"Lampu & Penerangan Outdoor",
+	"Pisau Lipat & Peralatan Survival",
+	"Aksesori Tambahan",
+	"Paket Komplit Camping",
 	"Lain-lain",
 ];
 
@@ -260,11 +265,17 @@ export default function AddProductPage() {
 											id="forSale"
 											name="productStatus"
 											value="sale"
-											checked={formData.isForSale && !formData.isForRent}
-											onChange={() =>
-												handleSwitchChange("isForSale", true) &&
-												handleSwitchChange("isForRent", false)
+											checked={
+												formData.isForSale === true &&
+												formData.isForRent === false
 											}
+											onChange={() => {
+												setFormData({
+													...formData,
+													isForSale: true,
+													isForRent: false,
+												});
+											}}
 											className="w-4 h-4 text-blue-600"
 										/>
 										<Label htmlFor="forSale" className="cursor-pointer">
@@ -278,11 +289,17 @@ export default function AddProductPage() {
 											id="forRent"
 											name="productStatus"
 											value="rent"
-											checked={formData.isForRent && !formData.isForSale}
-											onChange={() =>
-												handleSwitchChange("isForRent", true) &&
-												handleSwitchChange("isForSale", false)
+											checked={
+												formData.isForRent === true &&
+												formData.isForSale === false
 											}
+											onChange={() => {
+												setFormData({
+													...formData,
+													isForSale: false,
+													isForRent: true,
+												});
+											}}
 											className="w-4 h-4 text-blue-600"
 										/>
 										<Label htmlFor="forRent" className="cursor-pointer">
