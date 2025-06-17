@@ -34,6 +34,7 @@ const PRODUCT_CATEGORIES = [
 	"Pisau Lipat & Peralatan Survival",
 	"Aksesori Tambahan",
 	"Paket Komplit Camping",
+	"Paket Komplit Adzra Camp",
 	"Lain-lain",
 ];
 
