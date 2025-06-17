@@ -119,7 +119,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
 					<div className="prose max-w-none">
 						<h3 className="text-lg font-medium">Deskripsi</h3>
-						<p style={{ whiteSpace: "pre-line" }}>
+						<p >
 							{product.deskripsi ||
 								"Tidak ada deskripsi tersedia untuk produk ini."}
 						</p>
