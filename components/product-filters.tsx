@@ -84,6 +84,7 @@ export default function ProductFilters({
 			"Pisau Lipat & Peralatan Survival",
 			"Aksesori Tambahan",
 			"Paket Komplit Camping",
+			"Paket Komplit Adzra Camp",
 			"Lain-lain",
 		];
 

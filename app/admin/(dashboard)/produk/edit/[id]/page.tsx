@@ -352,6 +352,9 @@ export default function EditProductPage({
 												<SelectItem value="Paket Komplit Camping">
 													Paket Komplit Camping
 												</SelectItem>
+												<SelectItem value="Paket Komplit Adzra Camp">
+													Paket Komplit Adzra Camp
+												</SelectItem>
 												<SelectItem value="Lain-lain">Lain-lain</SelectItem>
 											</SelectContent>
 										</Select>
