@@ -10,6 +10,9 @@ import { ShoppingBag, Tent } from "lucide-react";
 import Link from "next/link";
 import ProductBanner from "@/components/Product-Banner";
 
+// ISR Configuration - Revalidate every 180 seconds (3 minutes)
+export const revalidate = 180;
+
 export const metadata = {
 	title: "Produk - Adzra Camp",
 	description: "Jelajahi berbagai produk camping berkualitas dari Adzra Camp",

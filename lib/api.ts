@@ -123,8 +123,7 @@ export async function fetchProducts(
 		console.log("Fetching products from:", url);
 
 		const response = await fetch(url, {
-			next: { revalidate: 0 },
-			cache: "no-store",
+			cache: "force-cache",
 		});
 
 		if (!response.ok) {
@@ -312,8 +311,8 @@ export async function fetchContent(
 
 		try {
 			const response = await fetch(url, {
-				next: { revalidate: 0 }, // Disable caching to always get fresh data
-				cache: "no-store",
+				// Use default caching behavior for ISR (or force-cache)
+				cache: "force-cache",
 				signal: controller.signal,
 			});
 
@@ -420,8 +419,8 @@ export async function getContentBySlug(
 			const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
 			const directResponse = await fetch(directUrl, {
-				next: { revalidate: 0 },
-				cache: "no-store",
+				// Use default caching behavior for ISR (or force-cache)
+				cache: "force-cache",
 				signal: controller.signal,
 			});
 
