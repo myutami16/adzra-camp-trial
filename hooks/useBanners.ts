@@ -17,7 +17,7 @@ interface UseBannersOptions {
 }
 
 export const useBanners = ({ location, limit = 5 }: UseBannersOptions) => {
-	const url = `/api/banner?location=${location}&limit=${limit}&isActive=true`;
+	const url = `/api/banners?location=${location}&limit=${limit}&isActive=true`;
 
 	const { data, error, isLoading, mutate } = useSWR<Banner[]>(url, fetcher, {
 		revalidateOnFocus: false,
