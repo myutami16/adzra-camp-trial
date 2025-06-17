@@ -7,10 +7,31 @@ import Link from "next/link";
 import { formatRupiah } from "@/lib/utils";
 import ProductCard from "@/components/product-card";
 
+// ISR Configuration - Revalidate every 300 seconds (5 minutes)
+export const revalidate = 300;
+
 interface ProductPageProps {
 	params: {
 		slug: string;
 	};
+}
+
+// Generate static params for popular products at build time
+export async function generateStaticParams() {
+	try {
+		// Fetch initial products to pre-generate popular/common product pages
+		const products = await fetchProducts({ limit: 20 });
+
+		return products.data.products
+			.filter((product) => product.slug) // Only include products that have a slug
+			.map((product) => ({
+				slug: product.slug,
+			}));
+	} catch (error) {
+		console.error("Error generating static params:", error);
+		// Return empty array if there's an error, Next.js will generate pages on-demand
+		return [];
+	}
 }
 
 export async function generateMetadata({ params }: ProductPageProps) {

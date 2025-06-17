@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import useSWR from "swr";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Package, FileText, Users, Loader2 } from "lucide-react";
-import { fetchAdminStats } from "@/lib/api";
+import { fetcher } from "@/lib/fetcher";
 import { getUserFromCookie } from "@/lib/auth";
 
 interface Stats {
@@ -13,58 +14,34 @@ interface Stats {
 }
 
 export default function AdminDashboard() {
-	const [stats, setStats] = useState<Stats | null>(null);
-	const [isLoading, setIsLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
 	const [user, setUser] = useState<{ role?: string } | null>(null);
 
 	useEffect(() => {
 		const currentUser = getUserFromCookie();
 		setUser(currentUser);
-
-		const fetchStats = async () => {
-			try {
-				console.log("Fetching admin stats...");
-				const data = await fetchAdminStats();
-				console.log("Admin stats received:", data);
-
-				// Ensure we have valid numbers for the stats
-				const processedStats = {
-					productCount:
-						typeof data.productCount === "number" ? data.productCount : 0,
-					contentCount:
-						typeof data.contentCount === "number" ? data.contentCount : 0,
-					userCount: typeof data.userCount === "number" ? data.userCount : 0,
-				};
-
-				console.log("Processed stats:", processedStats);
-				setStats(processedStats);
-				setError(null);
-			} catch (error) {
-				console.error("Error fetching stats:", error);
-				setError(
-					"Failed to load dashboard statistics. Please try again later."
-				);
-
-				// Set fallback stats
-				setStats({
-					productCount: 0,
-					contentCount: 0,
-					userCount: 0,
-				});
-			} finally {
-				setIsLoading(false);
-			}
-		};
-
-		// Only fetch stats if we have a user
-		if (currentUser) {
-			fetchStats();
-		} else {
-			setIsLoading(false);
-			setError("Authentication required. Please log in.");
-		}
 	}, []);
+
+	const {
+		data: stats,
+		error,
+		isLoading,
+	} = useSWR<Stats>(user ? "/api/admin/stats" : null, fetcher, {
+		revalidateOnFocus: false,
+		refreshInterval: 60000,
+		fallbackData: {
+			productCount: 0,
+			contentCount: 0,
+			userCount: 0,
+		},
+		onError: (error) => {
+			console.error("Error fetching stats:", error);
+		},
+		onSuccess: (data) => {
+			console.log("Admin stats received:", data);
+		},
+	});
+
+	const displayError = error && !stats;
 
 	return (
 		<div className="space-y-6">
@@ -77,9 +54,15 @@ export default function AdminDashboard() {
 				</p>
 			</div>
 
-			{error && (
+			{!user && (
 				<div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-					{error}
+					Authentication required. Please log in.
+				</div>
+			)}
+
+			{displayError && (
+				<div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+					Failed to load dashboard statistics. Please try again later.
 				</div>
 			)}
 

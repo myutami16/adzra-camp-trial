@@ -9,14 +9,21 @@ import {
 	CarouselPrevious,
 	CarouselApi,
 } from "@/components/ui/carousel";
-import { getHomepageBanners, type Banner } from "@/lib/api";
+import { useBanners } from "@/hooks/useBanners";
 import BannerItem from "./BannerItem"; // Import komponen BannerItem
 
 const BannerSlider = () => {
 	const [api, setApi] = useState<CarouselApi>();
 	const [current, setCurrent] = useState(0);
 
-	const [banners, setBanners] = useState([
+	// SWR implementation
+	const { banners, isLoading, error } = useBanners({
+		location: "homepage",
+		limit: 5,
+	});
+
+	// Default banners fallback
+	const defaultBanners = [
 		{
 			id: 1,
 			name: "Promo Ramadhan",
@@ -31,49 +38,21 @@ const BannerSlider = () => {
 			href: "/promo/diskon",
 			targetUrl: "/promo/diskon",
 		},
-	]);
+	];
 
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
-
-	useEffect(() => {
-		const loadBanners = async () => {
-			try {
-				setLoading(true);
-				setError(null);
-				console.log("Loading homepage banners...");
-				const bannerData = await getHomepageBanners(5);
-				console.log("Homepage banner data received:", bannerData);
-
-				if (bannerData && bannerData.length > 0) {
-					const transformedBanners = bannerData.map(
-						(banner: Banner, index: number) => ({
-							id: banner.id || index + 1,
-							name: `Homepage Banner ${index + 1}`,
-							image: banner.image,
-							href: banner.targetUrl || "#",
-							targetUrl: banner.targetUrl || "",
-							location: "homepage",
-							isActive: banner.isActive !== undefined ? banner.isActive : true,
-						})
-					);
-					console.log("Transformed homepage banners:", transformedBanners);
-					setBanners(transformedBanners);
-				} else {
-					console.log(
-						"No homepage banner data received, keeping default banners"
-					);
-				}
-			} catch (error) {
-				console.error("Error loading homepage banners:", error);
-				setError("Failed to load homepage banners");
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		loadBanners();
-	}, []);
+	// Transform banners for display
+	const displayBanners =
+		banners.length > 0
+			? banners.map((banner, index) => ({
+					id: banner.id,
+					name: `Homepage Banner ${index + 1}`,
+					image: banner.image,
+					href: banner.targetUrl || "#",
+					targetUrl: banner.targetUrl || "",
+					location: "homepage",
+					isActive: banner.isActive,
+			  }))
+			: defaultBanners;
 
 	useEffect(() => {
 		if (!api) {
@@ -97,7 +76,7 @@ const BannerSlider = () => {
 		return () => clearInterval(autoSlide);
 	}, [api]);
 
-	if (loading) {
+	if (isLoading) {
 		return (
 			<div className="w-full mb-8">
 				{/* Updated: Fixed aspect ratio container for 2.4:1 (1440x600) */}
@@ -113,13 +92,13 @@ const BannerSlider = () => {
 			<div className="w-full mb-8">
 				{/* Updated: Fixed aspect ratio container for 2.4:1 (1440x600) */}
 				<div className="w-full aspect-[2.4/1] bg-red-100 flex items-center justify-center">
-					<span className="text-red-500">Error: {error}</span>
+					<span className="text-red-500">Error: {error.message}</span>
 				</div>
 			</div>
 		);
 	}
 
-	if (banners.length === 0) {
+	if (displayBanners.length === 0) {
 		return (
 			<div className="w-full mb-8">
 				{/* Updated: Fixed aspect ratio container for 2.4:1 (1440x600) */}
@@ -143,7 +122,7 @@ const BannerSlider = () => {
 					}}>
 					<CarouselContent className="h-full -ml-0">
 						{/* SOLUSI: Hook dipanggil di dalam BannerItem, bukan di map */}
-						{banners.map((banner, index) => (
+						{displayBanners.map((banner, index) => (
 							<BannerItem
 								key={banner.id}
 								banner={banner}
@@ -153,7 +132,7 @@ const BannerSlider = () => {
 							/>
 						))}
 					</CarouselContent>
-					{banners.length > 1 && (
+					{displayBanners.length > 1 && (
 						<>
 							<CarouselPrevious className="left-4 bg-white/80 hover:bg-white" />
 							<CarouselNext className="right-4 bg-white/80 hover:bg-white" />

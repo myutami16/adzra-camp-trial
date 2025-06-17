@@ -10,6 +10,9 @@ import { ShoppingBag, Tent } from "lucide-react";
 import Link from "next/link";
 import ProductBanner from "@/components/Product-Banner";
 
+// ISR Configuration - Revalidate every 180 seconds (3 minutes)
+export const revalidate = 180;
+
 export const metadata = {
 	title: "Produk - Adzra Camp",
 	description: "Jelajahi berbagai produk camping berkualitas dari Adzra Camp",
@@ -30,12 +33,17 @@ interface ProductsPageProps {
 function ensureStringArray(input: any): string[] {
 	const defaultCategories = [
 		"Tenda Camping",
-		"Aksesori",
+		"Matras & Sleeping Kit",
 		"Sleeping Bag",
-		"Perlengkapan Outdoor & Survival",
-		"Lampu",
-		"Carrier & Ransel",
-		"Peralatan Memasak Outdoor",
+		"Carrier & Daypack",
+		"Flysheet & Aksesorinya",
+		"Meja & Kursi Lipat",
+		"Peralatan Masak Outdoor & Grill Kit",
+		"Trekking Pole",
+		"Lampu & Penerangan Outdoor",
+		"Pisau Lipat & Peralatan Survival",
+		"Aksesori Tambahan",
+		"Paket Komplit Camping",
 		"Lain-lain",
 	];
 
@@ -131,12 +139,17 @@ export default async function ProductsPage({
 
 		categories = [
 			"Tenda Camping",
-			"Aksesori",
+			"Matras & Sleeping Kit",
 			"Sleeping Bag",
-			"Perlengkapan Outdoor & Survival",
-			"Lampu",
-			"Carrier & Ransel",
-			"Peralatan Memasak Outdoor",
+			"Carrier & Daypack",
+			"Flysheet & Aksesorinya",
+			"Meja & Kursi Lipat",
+			"Peralatan Masak Outdoor & Grill Kit",
+			"Trekking Pole",
+			"Lampu & Penerangan Outdoor",
+			"Pisau Lipat & Peralatan Survival",
+			"Aksesori Tambahan",
+			"Paket Komplit Camping",
 			"Lain-lain",
 		];
 		console.log("Using fallback categories:", categories);

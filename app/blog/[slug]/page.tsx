@@ -6,10 +6,35 @@ import { formatDate } from "@/lib/utils";
 import BlogCard from "@/components/blog-card";
 import FallbackImage from "@/components/fallback-image";
 
+// ISR: Revalidate every 300 seconds (5 minutes)
+export const revalidate = 300;
+
 interface BlogPostPageProps {
 	params: {
 		slug: string;
 	};
+}
+
+// Generate static params for all available blog posts
+export async function generateStaticParams() {
+	try {
+		// Fetch all content to get slugs for static generation
+		const response = await fetchContent({
+			limit: 1000, // Adjust based on your content volume
+		});
+
+		if (!response.data?.content) {
+			return [];
+		}
+
+		// Return array of slug params for static generation
+		return response.data.content.map((post: any) => ({
+			slug: post.slug,
+		}));
+	} catch (error) {
+		console.error("Error generating static params:", error);
+		return [];
+	}
 }
 
 export async function generateMetadata({ params }: BlogPostPageProps) {

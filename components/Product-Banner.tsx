@@ -8,14 +8,21 @@ import {
 	CarouselPrevious,
 	CarouselApi,
 } from "@/components/ui/carousel";
-import { getProductPageBanners, type Banner } from "@/lib/api";
+import { useBanners } from "@/hooks/useBanners";
 import BannerItem from "./BannerItem"; // Import komponen BannerItem yang sama
 
 const ProductBanner = () => {
 	const [api, setApi] = useState<CarouselApi>();
 	const [current, setCurrent] = useState(0);
 
-	const [ProductBanners, setProductBanners] = useState([
+	// SWR implementation
+	const { banners, isLoading, error } = useBanners({
+		location: "productpage",
+		limit: 5,
+	});
+
+	// Default banners fallback
+	const defaultBanners = [
 		{
 			id: 1,
 			name: "Promo Ramadhan",
@@ -30,51 +37,21 @@ const ProductBanner = () => {
 			href: "/promo/diskon",
 			targetUrl: "/promo/diskon",
 		},
-	]);
+	];
 
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
-
-	useEffect(() => {
-		const loadBanners = async () => {
-			try {
-				setLoading(true);
-				setError(null);
-				console.log("Loading product page banners...");
-				const bannerData = await getProductPageBanners(5);
-				console.log("Product page banner data received:", bannerData);
-
-				if (bannerData && bannerData.length > 0) {
-					// Transform API data to match existing structure
-					const transformedBanners = bannerData.map(
-						(banner: Banner, index: number) => ({
-							id: banner.id || index + 1,
-							name: `Product Banner ${index + 1}`,
-							image: banner.image,
-							href: banner.targetUrl || "#",
-							targetUrl: banner.targetUrl || "", // Add targetUrl from API
-							location: "productpage", // Add location for banner actions
-							isActive: banner.isActive !== undefined ? banner.isActive : true,
-						})
-					);
-					console.log("Transformed product banners:", transformedBanners);
-					setProductBanners(transformedBanners);
-				} else {
-					console.log(
-						"No product banner data received, keeping default banners"
-					);
-				}
-			} catch (error) {
-				console.error("Error loading product page banners:", error);
-				setError("Failed to load banners");
-				// Keep default banners if API fails
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		loadBanners();
-	}, []);
+	// Transform banners for display
+	const displayBanners =
+		banners.length > 0
+			? banners.map((banner, index) => ({
+					id: banner.id,
+					name: `Product Banner ${index + 1}`,
+					image: banner.image,
+					href: banner.targetUrl || "#",
+					targetUrl: banner.targetUrl || "",
+					location: "productpage",
+					isActive: banner.isActive,
+			  }))
+			: defaultBanners;
 
 	useEffect(() => {
 		if (!api) {
@@ -99,7 +76,7 @@ const ProductBanner = () => {
 		return () => clearInterval(autoSlide);
 	}, [api]);
 
-	if (loading) {
+	if (isLoading) {
 		return (
 			<div className="w-full mb-8">
 				{/* Updated: Fixed aspect ratio container for 2.4:1 (1440x600) */}
@@ -115,13 +92,13 @@ const ProductBanner = () => {
 			<div className="w-full mb-8">
 				{/* Updated: Fixed aspect ratio container for 2.4:1 (1440x600) */}
 				<div className="w-full aspect-[2.4/1] bg-red-100 flex items-center justify-center">
-					<span className="text-red-500">Error: {error}</span>
+					<span className="text-red-500">Error: {error.message}</span>
 				</div>
 			</div>
 		);
 	}
 
-	if (ProductBanners.length === 0) {
+	if (displayBanners.length === 0) {
 		return (
 			<div className="w-full mb-8">
 				{/* Updated: Fixed aspect ratio container for 2.4:1 (1440x600) */}
@@ -145,7 +122,7 @@ const ProductBanner = () => {
 					}}>
 					<CarouselContent className="h-full -ml-0">
 						{/* SOLUSI: Hook dipanggil di dalam BannerItem, bukan di map */}
-						{ProductBanners.map((banner, index) => (
+						{displayBanners.map((banner, index) => (
 							<BannerItem
 								key={banner.id}
 								banner={banner}
@@ -155,7 +132,7 @@ const ProductBanner = () => {
 							/>
 						))}
 					</CarouselContent>
-					{ProductBanners.length > 1 && (
+					{displayBanners.length > 1 && (
 						<>
 							<CarouselPrevious className="left-4 bg-white/80 hover:bg-white" />
 							<CarouselNext className="right-4 bg-white/80 hover:bg-white" />
