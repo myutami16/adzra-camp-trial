@@ -33,12 +33,17 @@ interface ProductsPageProps {
 function ensureStringArray(input: any): string[] {
 	const defaultCategories = [
 		"Tenda Camping",
-		"Aksesori",
+		"Matras & Sleeping Kit",
 		"Sleeping Bag",
-		"Perlengkapan Outdoor & Survival",
-		"Lampu",
-		"Carrier & Ransel",
-		"Peralatan Memasak Outdoor",
+		"Carrier & Daypack",
+		"Flysheet & Aksesorinya",
+		"Meja & Kursi Lipat",
+		"Peralatan Masak Outdoor & Grill Kit",
+		"Trekking Pole",
+		"Lampu & Penerangan Outdoor",
+		"Pisau Lipat & Peralatan Survival",
+		"Aksesori Tambahan",
+		"Paket Komplit Camping",
 		"Lain-lain",
 	];
 
@@ -134,12 +139,17 @@ export default async function ProductsPage({
 
 		categories = [
 			"Tenda Camping",
-			"Aksesori",
+			"Matras & Sleeping Kit",
 			"Sleeping Bag",
-			"Perlengkapan Outdoor & Survival",
-			"Lampu",
-			"Carrier & Ransel",
-			"Peralatan Memasak Outdoor",
+			"Carrier & Daypack",
+			"Flysheet & Aksesorinya",
+			"Meja & Kursi Lipat",
+			"Peralatan Masak Outdoor & Grill Kit",
+			"Trekking Pole",
+			"Lampu & Penerangan Outdoor",
+			"Pisau Lipat & Peralatan Survival",
+			"Aksesori Tambahan",
+			"Paket Komplit Camping",
 			"Lain-lain",
 		];
 		console.log("Using fallback categories:", categories);
