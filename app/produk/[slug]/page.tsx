@@ -143,7 +143,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
 						{product.isForSale && product.stok > 0 && (
 							<Button asChild>
 								<Link
-									href="/jual-rental/form-pembelian"
+									href={`/jual-rental/form-pembelian?produk=${encodeURIComponent(
+										product.namaProduk
+									)}`}
 									className="flex items-center gap-2">
 									<ShoppingCart className="h-4 w-4" />
 									Beli Sekarang
@@ -152,7 +154,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
 						)}
 						{product.isForRent && (
 							<Button asChild variant="outline">
-								<Link href="/jual-rental/form-persewaan">Sewa Sekarang</Link>
+								<Link
+									href={`/jual-rental/form-persewaan?produk=${encodeURIComponent(
+										product.namaProduk
+									)}`}>
+									Sewa Sekarang
+								</Link>
 							</Button>
 						)}
 					</div>

@@ -2,27 +2,110 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Plus, Trash2 } from "lucide-react";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+} from "@/components/ui/command";
+import { Send, Plus, Trash2, Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { fetchProducts, type Product } from "@/lib/api";
 
 interface ProductItem {
 	id: string;
 	name: string;
 	quantity: number;
+	price?: number;
+	productId?: number;
 }
 
-export default function PurchaseFormClient() {
+// Separate component that uses useSearchParams
+function PurchaseFormContent() {
+	const searchParams = useSearchParams();
 	const [name, setName] = useState("");
 	const [phone, setPhone] = useState("");
 	const [address, setAddress] = useState("");
-	const [products, setProducts] = useState<ProductItem[]>([
-		{ id: crypto.randomUUID(), name: "", quantity: 1 },
-	]);
+	const [products, setProducts] = useState<ProductItem[]>([]);
 	const [notes, setNotes] = useState("");
+	const [availableProducts, setAvailableProducts] = useState<Product[]>([]);
+	const [loadingProducts, setLoadingProducts] = useState(true);
+	const [openCombobox, setOpenCombobox] = useState<string | null>(null);
+
+	// Initialize products with pre-filled data from query params
+	useEffect(() => {
+		const productFromQuery = searchParams.get("produk");
+
+		if (productFromQuery) {
+			// Pre-fill with product from query string
+			setProducts([
+				{
+					id: crypto.randomUUID(),
+					name: decodeURIComponent(productFromQuery),
+					quantity: 1,
+				},
+			]);
+		} else {
+			// Default empty product
+			setProducts([{ id: crypto.randomUUID(), name: "", quantity: 1 }]);
+		}
+	}, [searchParams]);
+
+	// Fetch products on component mount
+	useEffect(() => {
+		const loadProducts = async () => {
+			try {
+				setLoadingProducts(true);
+				const response = await fetchProducts({
+					limit: 1000, // Get all products
+					isForSale: "true", // Only get sale products
+				});
+				setAvailableProducts(response.data.products);
+
+				// Auto-match pre-filled product with available products to get price and productId
+				const productFromQuery = searchParams.get("produk");
+				if (productFromQuery && response.data.products.length > 0) {
+					const decodedProductName = decodeURIComponent(productFromQuery);
+					const matchedProduct = response.data.products.find(
+						(p) => p.namaProduk === decodedProductName
+					);
+
+					if (matchedProduct) {
+						setProducts((prev) =>
+							prev.map((item, index) =>
+								index === 0
+									? {
+											...item,
+											name: matchedProduct.namaProduk,
+											price: matchedProduct.harga,
+											productId: matchedProduct.id,
+									  }
+									: item
+							)
+						);
+					}
+				}
+			} catch (error) {
+				console.error("Error loading products:", error);
+			} finally {
+				setLoadingProducts(false);
+			}
+		};
+
+		loadProducts();
+	}, [searchParams]);
 
 	const addProduct = () => {
 		setProducts([
@@ -47,6 +130,22 @@ export default function PurchaseFormClient() {
 				product.id === id ? { ...product, [field]: value } : product
 			)
 		);
+	};
+
+	const selectProduct = (itemId: string, product: Product) => {
+		setProducts(
+			products.map((item) =>
+				item.id === itemId
+					? {
+							...item,
+							name: product.namaProduk,
+							price: product.harga,
+							productId: product.id,
+					  }
+					: item
+			)
+		);
+		setOpenCombobox(null);
 	};
 
 	const handleSubmit = (e: React.FormEvent) => {
@@ -76,6 +175,14 @@ ${notes || "-"}
 		const encodedMessage = encodeURIComponent(message);
 
 		window.open(`https://wa.me/6281937681294?text=${encodedMessage}`, "_blank");
+	};
+
+	const formatPrice = (price: number) => {
+		return new Intl.NumberFormat("id-ID", {
+			style: "currency",
+			currency: "IDR",
+			minimumFractionDigits: 0,
+		}).format(price);
 	};
 
 	return (
@@ -128,15 +235,68 @@ ${notes || "-"}
 								<Label>Produk yang ingin dibeli</Label>
 
 								{products.map((product, index) => (
-									<div key={product.id} className="flex gap-2">
-										<Input
-											value={product.name}
-											onChange={(e) =>
-												updateProduct(product.id, "name", e.target.value)
-											}
-											placeholder="Nama produk"
-											className="flex-1"
-										/>
+									<div key={product.id} className="flex gap-2 items-start">
+										<div className="flex-1">
+											<Popover
+												open={openCombobox === product.id}
+												onOpenChange={(open) =>
+													setOpenCombobox(open ? product.id : null)
+												}>
+												<PopoverTrigger asChild>
+													<Button
+														variant="outline"
+														role="combobox"
+														aria-expanded={openCombobox === product.id}
+														className="w-full justify-between">
+														{product.name || "Pilih produk..."}
+														<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+													</Button>
+												</PopoverTrigger>
+												<PopoverContent className="w-full p-0">
+													<Command>
+														<CommandInput placeholder="Cari produk..." />
+														<CommandEmpty>
+															{loadingProducts
+																? "Memuat produk..."
+																: "Produk tidak ditemukan."}
+														</CommandEmpty>
+														<CommandGroup className="max-h-64 overflow-auto">
+															{availableProducts.map((availableProduct) => (
+																<CommandItem
+																	key={availableProduct.id}
+																	onSelect={() =>
+																		selectProduct(product.id, availableProduct)
+																	}
+																	className="flex items-center justify-between">
+																	<div className="flex items-center">
+																		<Check
+																			className={cn(
+																				"mr-2 h-4 w-4",
+																				product.productId ===
+																					availableProduct.id
+																					? "opacity-100"
+																					: "opacity-0"
+																			)}
+																		/>
+																		<span className="flex-1">
+																			{availableProduct.namaProduk}
+																		</span>
+																	</div>
+																	<span className="text-sm text-gray-500 ml-2">
+																		{formatPrice(availableProduct.harga)}
+																	</span>
+																</CommandItem>
+															))}
+														</CommandGroup>
+													</Command>
+												</PopoverContent>
+											</Popover>
+											{product.price && (
+												<div className="mt-1 text-sm text-green-600 font-medium">
+													{formatPrice(product.price)}
+												</div>
+											)}
+										</div>
 										<Input
 											type="number"
 											min="1"
@@ -190,11 +350,47 @@ ${notes || "-"}
 
 						<div className="text-sm text-gray-500 text-center mt-4">
 							Setelah mengirim form, tim kami akan menghubungi Anda untuk
-							konfirmasi pembelian dan pembayaran.
+							konfirmasi pembelian dan pembayaan.
 						</div>
 					</form>
 				</div>
 			</div>
 		</div>
+	);
+}
+
+// Loading fallback component
+function FormLoadingFallback() {
+	return (
+		<div className="container mx-auto px-4 py-8">
+			<div className="max-w-3xl mx-auto">
+				<div className="text-center mb-8">
+					<h1 className="text-3xl font-bold mb-2">Form Pembelian</h1>
+					<p className="text-gray-600">
+						Isi form di bawah ini untuk membeli peralatan camping dari Adzra
+						Camp
+					</p>
+				</div>
+				<div className="bg-white rounded-lg shadow-md p-6">
+					<div className="animate-pulse space-y-4">
+						<div className="h-4 bg-gray-200 rounded w-1/4"></div>
+						<div className="h-10 bg-gray-200 rounded"></div>
+						<div className="h-4 bg-gray-200 rounded w-1/4"></div>
+						<div className="h-10 bg-gray-200 rounded"></div>
+						<div className="h-4 bg-gray-200 rounded w-1/4"></div>
+						<div className="h-20 bg-gray-200 rounded"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+// Main component with Suspense boundary
+export default function PurchaseFormClient() {
+	return (
+		<Suspense fallback={<FormLoadingFallback />}>
+			<PurchaseFormContent />
+		</Suspense>
 	);
 }
