@@ -2,7 +2,8 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,26 +14,109 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import { CalendarIcon, Plus, Trash2, Send } from "lucide-react";
+import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+} from "@/components/ui/command";
+import {
+	CalendarIcon,
+	Plus,
+	Trash2,
+	Send,
+	Check,
+	ChevronsUpDown,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
+import { fetchProducts, type Product } from "@/lib/api";
 
 interface RentalItem {
 	id: string;
 	name: string;
 	quantity: number;
+	price?: number;
+	productId?: number;
 }
 
-export default function RentalFormClient() {
+// Separate component that uses useSearchParams
+function RentalFormContent() {
+	const searchParams = useSearchParams();
 	const [name, setName] = useState("");
 	const [phone, setPhone] = useState("");
 	const [date, setDate] = useState<Date>();
 	const [duration, setDuration] = useState("");
 	const [pickupTime, setPickupTime] = useState("");
-	const [items, setItems] = useState<RentalItem[]>([
-		{ id: crypto.randomUUID(), name: "", quantity: 1 },
-	]);
+	const [items, setItems] = useState<RentalItem[]>([]);
+	const [products, setProducts] = useState<Product[]>([]);
+	const [loadingProducts, setLoadingProducts] = useState(true);
+	const [openCombobox, setOpenCombobox] = useState<string | null>(null);
+
+	// Initialize items with pre-filled data from query params
+	useEffect(() => {
+		const productFromQuery = searchParams.get("produk");
+
+		if (productFromQuery) {
+			// Pre-fill with product from query string
+			setItems([
+				{
+					id: crypto.randomUUID(),
+					name: decodeURIComponent(productFromQuery),
+					quantity: 1,
+				},
+			]);
+		} else {
+			// Default empty item
+			setItems([{ id: crypto.randomUUID(), name: "", quantity: 1 }]);
+		}
+	}, [searchParams]);
+
+	// Fetch products on component mount
+	useEffect(() => {
+		const loadProducts = async () => {
+			try {
+				setLoadingProducts(true);
+				const response = await fetchProducts({
+					limit: 1000, // Get all products
+					isForRent: "true", // Only get rental products
+				});
+				setProducts(response.data.products);
+
+				// Auto-match pre-filled product with available products to get price and productId
+				const productFromQuery = searchParams.get("produk");
+				if (productFromQuery && response.data.products.length > 0) {
+					const decodedProductName = decodeURIComponent(productFromQuery);
+					const matchedProduct = response.data.products.find(
+						(p) => p.namaProduk === decodedProductName
+					);
+
+					if (matchedProduct) {
+						setItems((prev) =>
+							prev.map((item, index) =>
+								index === 0
+									? {
+											...item,
+											name: matchedProduct.namaProduk,
+											price: matchedProduct.harga,
+											productId: matchedProduct.id,
+									  }
+									: item
+							)
+						);
+					}
+				}
+			} catch (error) {
+				console.error("Error loading products:", error);
+			} finally {
+				setLoadingProducts(false);
+			}
+		};
+
+		loadProducts();
+	}, [searchParams]);
 
 	const addItem = () => {
 		setItems([...items, { id: crypto.randomUUID(), name: "", quantity: 1 }]);
@@ -52,6 +136,22 @@ export default function RentalFormClient() {
 		setItems(
 			items.map((item) => (item.id === id ? { ...item, [field]: value } : item))
 		);
+	};
+
+	const selectProduct = (itemId: string, product: Product) => {
+		setItems(
+			items.map((item) =>
+				item.id === itemId
+					? {
+							...item,
+							name: product.namaProduk,
+							price: product.harga,
+							productId: product.id,
+					  }
+					: item
+			)
+		);
+		setOpenCombobox(null);
 	};
 
 	const handleSubmit = (e: React.FormEvent) => {
@@ -84,6 +184,14 @@ ${itemsList}
 
 		// Open WhatsApp with the pre-filled message
 		window.open(`https://wa.me/6281937681294?text=${encodedMessage}`, "_blank");
+	};
+
+	const formatPrice = (price: number) => {
+		return new Intl.NumberFormat("id-ID", {
+			style: "currency",
+			currency: "IDR",
+			minimumFractionDigits: 0,
+		}).format(price);
 	};
 
 	return (
@@ -177,15 +285,67 @@ ${itemsList}
 									<Label>Barang yang disewa</Label>
 
 									{items.map((item, index) => (
-										<div key={item.id} className="flex gap-2">
-											<Input
-												value={item.name}
-												onChange={(e) =>
-													updateItem(item.id, "name", e.target.value)
-												}
-												placeholder="Nama barang"
-												className="flex-1"
-											/>
+										<div key={item.id} className="flex gap-2 items-start">
+											<div className="flex-1">
+												<Popover
+													open={openCombobox === item.id}
+													onOpenChange={(open) =>
+														setOpenCombobox(open ? item.id : null)
+													}>
+													<PopoverTrigger asChild>
+														<Button
+															variant="outline"
+															role="combobox"
+															aria-expanded={openCombobox === item.id}
+															className="w-full justify-between">
+															{item.name || "Pilih barang..."}
+															<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+														</Button>
+													</PopoverTrigger>
+													<PopoverContent className="w-full p-0">
+														<Command>
+															<CommandInput placeholder="Cari barang..." />
+															<CommandEmpty>
+																{loadingProducts
+																	? "Memuat produk..."
+																	: "Barang tidak ditemukan."}
+															</CommandEmpty>
+															<CommandGroup className="max-h-64 overflow-auto">
+																{products.map((product) => (
+																	<CommandItem
+																		key={product.id}
+																		onSelect={() =>
+																			selectProduct(item.id, product)
+																		}
+																		className="flex items-center justify-between">
+																		<div className="flex items-center">
+																			<Check
+																				className={cn(
+																					"mr-2 h-4 w-4",
+																					item.productId === product.id
+																						? "opacity-100"
+																						: "opacity-0"
+																				)}
+																			/>
+																			<span className="flex-1">
+																				{product.namaProduk}
+																			</span>
+																		</div>
+																		<span className="text-sm text-gray-500 ml-2">
+																			{formatPrice(product.harga)}/hari
+																		</span>
+																	</CommandItem>
+																))}
+															</CommandGroup>
+														</Command>
+													</PopoverContent>
+												</Popover>
+												{item.price && (
+													<div className="mt-1 text-sm text-green-600 font-medium">
+														{formatPrice(item.price)}/hari
+													</div>
+												)}
+											</div>
 											<Input
 												type="number"
 												min="1"
@@ -244,5 +404,51 @@ ${itemsList}
 				</div>
 			</div>
 		</div>
+	);
+}
+
+// Loading fallback component
+function FormLoadingFallback() {
+	return (
+		<div className="container mx-auto px-4 py-8">
+			<div className="max-w-3xl mx-auto">
+				<div className="text-center mb-8">
+					<h1 className="text-3xl font-bold mb-2">Form Persewaan</h1>
+					<p className="text-gray-600">
+						Isi form di bawah ini untuk menyewa peralatan camping dari Adzra
+						Camp
+					</p>
+				</div>
+				<div className="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-8">
+					<div className="animate-pulse space-y-4">
+						<div className="h-4 bg-gray-200 rounded w-1/4"></div>
+						<div className="h-10 bg-gray-200 rounded"></div>
+						<div className="h-4 bg-gray-200 rounded w-1/4"></div>
+						<div className="h-10 bg-gray-200 rounded"></div>
+						<div className="h-4 bg-gray-200 rounded w-1/4"></div>
+						<div className="h-10 bg-gray-200 rounded"></div>
+					</div>
+					<div className="bg-primary-light/10 p-4 rounded-lg">
+						<h3 className="font-semibold mb-2">Catatan:</h3>
+						<ul className="text-sm space-y-2">
+							<li>• Form ini akan dikirim via WhatsApp</li>
+							<li>• Sewa minimal 1 hari</li>
+							<li>• Pembayaran dilakukan saat pengambilan barang</li>
+							<li>• Diperlukan kartu identitas sebagai jaminan</li>
+							<li>• Pengembalian maksimal jam 22.00 WIB</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+// Main component with Suspense boundary
+export default function RentalFormClient() {
+	return (
+		<Suspense fallback={<FormLoadingFallback />}>
+			<RentalFormContent />
+		</Suspense>
 	);
 }
