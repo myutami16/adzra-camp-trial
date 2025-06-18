@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,7 +32,8 @@ interface ProductItem {
 	productId?: number;
 }
 
-export default function PurchaseFormClient() {
+// Separate component that uses useSearchParams
+function PurchaseFormContent() {
 	const searchParams = useSearchParams();
 	const [name, setName] = useState("");
 	const [phone, setPhone] = useState("");
@@ -355,5 +356,41 @@ ${notes || "-"}
 				</div>
 			</div>
 		</div>
+	);
+}
+
+// Loading fallback component
+function FormLoadingFallback() {
+	return (
+		<div className="container mx-auto px-4 py-8">
+			<div className="max-w-3xl mx-auto">
+				<div className="text-center mb-8">
+					<h1 className="text-3xl font-bold mb-2">Form Pembelian</h1>
+					<p className="text-gray-600">
+						Isi form di bawah ini untuk membeli peralatan camping dari Adzra
+						Camp
+					</p>
+				</div>
+				<div className="bg-white rounded-lg shadow-md p-6">
+					<div className="animate-pulse space-y-4">
+						<div className="h-4 bg-gray-200 rounded w-1/4"></div>
+						<div className="h-10 bg-gray-200 rounded"></div>
+						<div className="h-4 bg-gray-200 rounded w-1/4"></div>
+						<div className="h-10 bg-gray-200 rounded"></div>
+						<div className="h-4 bg-gray-200 rounded w-1/4"></div>
+						<div className="h-20 bg-gray-200 rounded"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+// Main component with Suspense boundary
+export default function PurchaseFormClient() {
+	return (
+		<Suspense fallback={<FormLoadingFallback />}>
+			<PurchaseFormContent />
+		</Suspense>
 	);
 }

@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -42,7 +42,8 @@ interface RentalItem {
 	productId?: number;
 }
 
-export default function RentalFormClient() {
+// Separate component that uses useSearchParams
+function RentalFormContent() {
 	const searchParams = useSearchParams();
 	const [name, setName] = useState("");
 	const [phone, setPhone] = useState("");
@@ -403,5 +404,51 @@ ${itemsList}
 				</div>
 			</div>
 		</div>
+	);
+}
+
+// Loading fallback component
+function FormLoadingFallback() {
+	return (
+		<div className="container mx-auto px-4 py-8">
+			<div className="max-w-3xl mx-auto">
+				<div className="text-center mb-8">
+					<h1 className="text-3xl font-bold mb-2">Form Persewaan</h1>
+					<p className="text-gray-600">
+						Isi form di bawah ini untuk menyewa peralatan camping dari Adzra
+						Camp
+					</p>
+				</div>
+				<div className="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-8">
+					<div className="animate-pulse space-y-4">
+						<div className="h-4 bg-gray-200 rounded w-1/4"></div>
+						<div className="h-10 bg-gray-200 rounded"></div>
+						<div className="h-4 bg-gray-200 rounded w-1/4"></div>
+						<div className="h-10 bg-gray-200 rounded"></div>
+						<div className="h-4 bg-gray-200 rounded w-1/4"></div>
+						<div className="h-10 bg-gray-200 rounded"></div>
+					</div>
+					<div className="bg-primary-light/10 p-4 rounded-lg">
+						<h3 className="font-semibold mb-2">Catatan:</h3>
+						<ul className="text-sm space-y-2">
+							<li>• Form ini akan dikirim via WhatsApp</li>
+							<li>• Sewa minimal 1 hari</li>
+							<li>• Pembayaran dilakukan saat pengambilan barang</li>
+							<li>• Diperlukan kartu identitas sebagai jaminan</li>
+							<li>• Pengembalian maksimal jam 22.00 WIB</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+// Main component with Suspense boundary
+export default function RentalFormClient() {
+	return (
+		<Suspense fallback={<FormLoadingFallback />}>
+			<RentalFormContent />
+		</Suspense>
 	);
 }
