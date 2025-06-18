@@ -3,6 +3,7 @@
 import type React from "react";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,16 +33,34 @@ interface ProductItem {
 }
 
 export default function PurchaseFormClient() {
+	const searchParams = useSearchParams();
 	const [name, setName] = useState("");
 	const [phone, setPhone] = useState("");
 	const [address, setAddress] = useState("");
-	const [products, setProducts] = useState<ProductItem[]>([
-		{ id: crypto.randomUUID(), name: "", quantity: 1 },
-	]);
+	const [products, setProducts] = useState<ProductItem[]>([]);
 	const [notes, setNotes] = useState("");
 	const [availableProducts, setAvailableProducts] = useState<Product[]>([]);
 	const [loadingProducts, setLoadingProducts] = useState(true);
 	const [openCombobox, setOpenCombobox] = useState<string | null>(null);
+
+	// Initialize products with pre-filled data from query params
+	useEffect(() => {
+		const productFromQuery = searchParams.get("produk");
+
+		if (productFromQuery) {
+			// Pre-fill with product from query string
+			setProducts([
+				{
+					id: crypto.randomUUID(),
+					name: decodeURIComponent(productFromQuery),
+					quantity: 1,
+				},
+			]);
+		} else {
+			// Default empty product
+			setProducts([{ id: crypto.randomUUID(), name: "", quantity: 1 }]);
+		}
+	}, [searchParams]);
 
 	// Fetch products on component mount
 	useEffect(() => {
@@ -53,6 +72,30 @@ export default function PurchaseFormClient() {
 					isForSale: "true", // Only get sale products
 				});
 				setAvailableProducts(response.data.products);
+
+				// Auto-match pre-filled product with available products to get price and productId
+				const productFromQuery = searchParams.get("produk");
+				if (productFromQuery && response.data.products.length > 0) {
+					const decodedProductName = decodeURIComponent(productFromQuery);
+					const matchedProduct = response.data.products.find(
+						(p) => p.namaProduk === decodedProductName
+					);
+
+					if (matchedProduct) {
+						setProducts((prev) =>
+							prev.map((item, index) =>
+								index === 0
+									? {
+											...item,
+											name: matchedProduct.namaProduk,
+											price: matchedProduct.harga,
+											productId: matchedProduct.id,
+									  }
+									: item
+							)
+						);
+					}
+				}
 			} catch (error) {
 				console.error("Error loading products:", error);
 			} finally {
@@ -61,7 +104,7 @@ export default function PurchaseFormClient() {
 		};
 
 		loadProducts();
-	}, []);
+	}, [searchParams]);
 
 	const addProduct = () => {
 		setProducts([
@@ -306,7 +349,7 @@ ${notes || "-"}
 
 						<div className="text-sm text-gray-500 text-center mt-4">
 							Setelah mengirim form, tim kami akan menghubungi Anda untuk
-							konfirmasi pembelian dan pembayaran.
+							konfirmasi pembelian dan pembayaan.
 						</div>
 					</form>
 				</div>

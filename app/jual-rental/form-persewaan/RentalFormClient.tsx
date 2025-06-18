@@ -3,6 +3,7 @@
 import type React from "react";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,17 +43,35 @@ interface RentalItem {
 }
 
 export default function RentalFormClient() {
+	const searchParams = useSearchParams();
 	const [name, setName] = useState("");
 	const [phone, setPhone] = useState("");
 	const [date, setDate] = useState<Date>();
 	const [duration, setDuration] = useState("");
 	const [pickupTime, setPickupTime] = useState("");
-	const [items, setItems] = useState<RentalItem[]>([
-		{ id: crypto.randomUUID(), name: "", quantity: 1 },
-	]);
+	const [items, setItems] = useState<RentalItem[]>([]);
 	const [products, setProducts] = useState<Product[]>([]);
 	const [loadingProducts, setLoadingProducts] = useState(true);
 	const [openCombobox, setOpenCombobox] = useState<string | null>(null);
+
+	// Initialize items with pre-filled data from query params
+	useEffect(() => {
+		const productFromQuery = searchParams.get("produk");
+
+		if (productFromQuery) {
+			// Pre-fill with product from query string
+			setItems([
+				{
+					id: crypto.randomUUID(),
+					name: decodeURIComponent(productFromQuery),
+					quantity: 1,
+				},
+			]);
+		} else {
+			// Default empty item
+			setItems([{ id: crypto.randomUUID(), name: "", quantity: 1 }]);
+		}
+	}, [searchParams]);
 
 	// Fetch products on component mount
 	useEffect(() => {
@@ -64,6 +83,30 @@ export default function RentalFormClient() {
 					isForRent: "true", // Only get rental products
 				});
 				setProducts(response.data.products);
+
+				// Auto-match pre-filled product with available products to get price and productId
+				const productFromQuery = searchParams.get("produk");
+				if (productFromQuery && response.data.products.length > 0) {
+					const decodedProductName = decodeURIComponent(productFromQuery);
+					const matchedProduct = response.data.products.find(
+						(p) => p.namaProduk === decodedProductName
+					);
+
+					if (matchedProduct) {
+						setItems((prev) =>
+							prev.map((item, index) =>
+								index === 0
+									? {
+											...item,
+											name: matchedProduct.namaProduk,
+											price: matchedProduct.harga,
+											productId: matchedProduct.id,
+									  }
+									: item
+							)
+						);
+					}
+				}
 			} catch (error) {
 				console.error("Error loading products:", error);
 			} finally {
@@ -72,7 +115,7 @@ export default function RentalFormClient() {
 		};
 
 		loadProducts();
-	}, []);
+	}, [searchParams]);
 
 	const addItem = () => {
 		setItems([...items, { id: crypto.randomUUID(), name: "", quantity: 1 }]);
