@@ -142,10 +142,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
 					<div className="flex flex-col sm:flex-row gap-4">
 						{product.isForSale && product.stok > 0 && (
 							<Button asChild>
-								<Link
-									href="/jual-rental/form-pembelian"
-									className="flex items-center gap-2">
-									<ShoppingCart className="h-4 w-4" />
+<Link
+  href={`/jual-rental/form-pembelian?produk=${encodeURIComponent(product.namaProduk)}`}
+  className="flex items-center gap-2"
+>
 									Beli Sekarang
 								</Link>
 							</Button>

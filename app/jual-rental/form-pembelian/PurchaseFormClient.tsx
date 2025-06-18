@@ -2,7 +2,8 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,11 +17,16 @@ interface ProductItem {
 }
 
 export default function PurchaseFormClient() {
+	const searchParams = useSearchParams();
+	const productQuery = searchParams.get("produk");
+
+
+
 	const [name, setName] = useState("");
 	const [phone, setPhone] = useState("");
 	const [address, setAddress] = useState("");
 	const [products, setProducts] = useState<ProductItem[]>([
-		{ id: crypto.randomUUID(), name: "", quantity: 1 },
+		{ id: crypto.randomUUID(), name: productQuery, quantity: 1 },
 	]);
 	const [notes, setNotes] = useState("");
 
