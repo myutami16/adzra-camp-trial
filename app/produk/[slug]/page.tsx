@@ -7,8 +7,8 @@ import Link from "next/link";
 import { formatRupiah } from "@/lib/utils";
 import ProductCard from "@/components/product-card";
 
-// ISR Configuration - Revalidate every 300 seconds (5 minutes)
-export const revalidate = 300;
+// ISR Configuration
+export const revalidate = 60;
 
 interface ProductPageProps {
 	params: {

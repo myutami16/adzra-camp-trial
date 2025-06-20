@@ -123,7 +123,7 @@ export async function fetchProducts(
 		console.log("Fetching products from:", url);
 
 		const response = await fetch(url, {
-			cache: "force-cache",
+			next: { revalidate: 60 },
 		});
 
 		if (!response.ok) {
