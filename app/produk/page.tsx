@@ -10,8 +10,8 @@ import { ShoppingBag, Tent } from "lucide-react";
 import Link from "next/link";
 import ProductBanner from "@/components/Product-Banner";
 
-// ISR Configuration - Revalidate every 180 seconds (3 minutes)
-export const revalidate = 180;
+// ISR Configuration
+export const revalidate = 60; // Revalidate every 60 seconds
 
 export const metadata = {
 	title: "Produk - Adzra Camp",
@@ -33,15 +33,15 @@ interface ProductsPageProps {
 function ensureStringArray(input: any): string[] {
 	const defaultCategories = [
 		"Tenda Camping",
-		"Matras & Sleeping Kit",
+		"Matras dan Sleeping Kit",
 		"Sleeping Bag",
-		"Carrier & Daypack",
-		"Flysheet & Aksesorinya",
-		"Meja & Kursi Lipat",
-		"Peralatan Masak Outdoor & Grill Kit",
+		"Carrier dan Daypack",
+		"Flysheet dan Aksesorinya",
+		"Meja dan Kursi Lipat",
+		"Peralatan Masak Outdoor dan Grill Kit",
 		"Trekking Pole",
-		"Lampu & Penerangan Outdoor",
-		"Pisau Lipat & Peralatan Survival",
+		"Lampu dan Penerangan Outdoor",
+		"Pisau Lipat dan Peralatan Survival",
 		"Aksesori Tambahan",
 		"Paket Komplit Camping",
 		"Paket Komplit Adzra Camp",
@@ -140,17 +140,18 @@ export default async function ProductsPage({
 
 		categories = [
 			"Tenda Camping",
-			"Matras & Sleeping Kit",
+			"Matras dan Sleeping Kit",
 			"Sleeping Bag",
-			"Carrier & Daypack",
-			"Flysheet & Aksesorinya",
-			"Meja & Kursi Lipat",
-			"Peralatan Masak Outdoor & Grill Kit",
+			"Carrier dan Daypack",
+			"Flysheet dan Aksesorinya",
+			"Meja dan Kursi Lipat",
+			"Peralatan Masak Outdoor dan Grill Kit",
 			"Trekking Pole",
-			"Lampu & Penerangan Outdoor",
-			"Pisau Lipat & Peralatan Survival",
+			"Lampu dan Penerangan Outdoor",
+			"Pisau Lipat dan Peralatan Survival",
 			"Aksesori Tambahan",
 			"Paket Komplit Camping",
+			"Paket Komplit Adzra Camp",
 			"Lain-lain",
 		];
 		console.log("Using fallback categories:", categories);

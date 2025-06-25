@@ -320,31 +320,31 @@ export default function EditProductPage({
 													Tenda Camping
 												</SelectItem>
 												<SelectItem value="Matras & Sleeping Kit">
-													Matras & Sleeping Kit
+													Matras dan Sleeping Kit
 												</SelectItem>
 												<SelectItem value="Sleeping Bag">
 													Sleeping Bag
 												</SelectItem>
 												<SelectItem value="Carrier & Daypack">
-													Carrier & Daypack
+													Carrier dan Daypack
 												</SelectItem>
 												<SelectItem value="Flysheet & Aksesorinya">
-													Flysheet & Aksesorinya
+													Flysheet dan Aksesorinya
 												</SelectItem>
 												<SelectItem value="Meja & Kursi Lipat">
-													Meja & Kursi Lipat
+													Meja dan Kursi Lipat
 												</SelectItem>
 												<SelectItem value="Peralatan Masak Outdoor & Grill Kit">
-													Peralatan Masak Outdoor & Grill Kit
+													Peralatan Masak Outdoor dan Grill Kit
 												</SelectItem>
 												<SelectItem value="Trekking Pole">
 													Trekking Pole
 												</SelectItem>
 												<SelectItem value="Lampu & Penerangan Outdoor">
-													Lampu & Penerangan Outdoor
+													Lampu dan Penerangan Outdoor
 												</SelectItem>
 												<SelectItem value="Pisau Lipat & Peralatan Survival">
-													Pisau Lipat & Peralatan Survival
+													Pisau Lipat dan Peralatan Survival
 												</SelectItem>
 												<SelectItem value="Aksesori Tambahan">
 													Aksesori Tambahan
