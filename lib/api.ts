@@ -123,7 +123,17 @@ export async function fetchProducts(
 		console.log("Fetching products from:", url);
 
 		const response = await fetch(url, {
-			next: { tags: ["products", "filtered-products"] },
+			next: {
+				tags: [
+					"products",
+					"categories",
+					"all-products",
+					"filtered-products",
+					"product-by-id",
+					"product-by-slug",
+					"search-products",
+				],
+			},
 		});
 
 		if (!response.ok) {
