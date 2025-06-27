@@ -8,7 +8,7 @@ import { formatRupiah } from "@/lib/utils";
 import ProductCard from "@/components/product-card";
 
 // ISR Configuration
-export const revalidate = 60;
+// export const revalidate = 60;
 
 interface ProductPageProps {
 	params: {

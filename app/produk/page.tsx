@@ -11,7 +11,7 @@ import Link from "next/link";
 import ProductBanner from "@/components/Product-Banner";
 
 // ISR Configuration
-export const revalidate = 60; // Revalidate every 60 seconds
+// export const revalidate = 60; // Revalidate every 60 seconds
 
 export const metadata = {
 	title: "Produk - Adzra Camp",
