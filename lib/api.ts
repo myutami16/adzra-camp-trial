@@ -96,7 +96,8 @@ export async function fetchProducts(
 		path?: string;
 		isForSale?: string;
 		isForRent?: string;
-	} = {}
+	} = {},
+	nextTags?: string[]
 ): Promise<{ data: { products: Product[]; pagination: any } }> {
 	try {
 		const queryParams = new URLSearchParams();
@@ -124,7 +125,7 @@ export async function fetchProducts(
 
 		const response = await fetch(url, {
 			next: {
-				tags: [
+				tags: nextTags ?? [
 					"products",
 					"categories",
 					"all-products",
@@ -535,19 +536,20 @@ export async function searchProducts(query: string): Promise<ProductsResponse> {
 export async function getProductBySlug(slug: string): Promise<Product | null> {
 	try {
 		console.log(`Fetching product with slug: ${slug}`);
-		const response = await fetchProducts({ slug });
-		console.log(`Product response for slug ${slug}:`, response);
+		const response = await fetchProducts({ slug }, [
+			`product-${slug}`,
+			"product-by-slug",
+		]);
 
 		if (response.data.products && response.data.products.length > 0) {
 			return response.data.products[0];
 		}
 
-		// If no product found with the slug, try fetching with path parameter
-		console.log(
-			"No product found with slug parameter, trying with path parameter"
-		);
-		const pathResponse = await fetchProducts({ path: slug });
-		console.log(`Product response for path ${slug}:`, pathResponse);
+		console.log("No product found with slug parameter, trying with path");
+		const pathResponse = await fetchProducts({ path: slug }, [
+			`product-${slug}`,
+			"product-by-slug",
+		]);
 
 		if (pathResponse.data.products && pathResponse.data.products.length > 0) {
 			return pathResponse.data.products[0];
