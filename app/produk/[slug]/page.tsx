@@ -7,8 +7,9 @@ import Link from "next/link";
 import { formatRupiah } from "@/lib/utils";
 import ProductCard from "@/components/product-card";
 
-// ISR Configuration
-// export const revalidate = 60;
+// ✅ Static generation with on-demand revalidation
+export const dynamic = "force-static";
+export const revalidate = false; // On-demand only
 
 interface ProductPageProps {
 	params: {
@@ -49,6 +50,13 @@ export async function generateMetadata({ params }: ProductPageProps) {
 		description:
 			product.deskripsi ||
 			`Detail produk ${product.namaProduk} dari Adzra Camp`,
+		openGraph: {
+			title: `${product.namaProduk} - Adzra Camp`,
+			description:
+				product.deskripsi ||
+				`Detail produk ${product.namaProduk} dari Adzra Camp`,
+			images: product.gambar ? [product.gambar] : [],
+		},
 	};
 }
 
@@ -62,11 +70,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
 		notFound();
 	}
 
-	// Fetch related products
-	const relatedProducts = await fetchProducts({
-		kategori: product.kategori,
-		limit: 4,
-	});
+	// Fetch related products with specific tags
+	const relatedProducts = await fetchProducts(
+		{
+			kategori: product.kategori,
+			limit: 4,
+		},
+		[`category-${product.kategori}`, "related-products"]
+	);
 
 	// Filter out current product from related products
 	const filteredRelatedProducts = relatedProducts.data.products
@@ -89,6 +100,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 						alt={product.namaProduk}
 						fill
 						className="object-contain"
+						priority
 					/>
 				</div>
 
@@ -131,8 +143,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
 							<div className="grid grid-cols-1 gap-2">
 								{Object.entries(product.specifications).map(([key, value]) => (
 									<div key={key} className="flex">
-										<span className="font-medium min-w-[120px]">{key}</span>
-										<span>{value as string}</span>
+										<span className="font-medium min-w-[120px]">{key}:</span>
+										<span className="ml-2">{value as string}</span>
 									</div>
 								))}
 							</div>

@@ -123,17 +123,35 @@ export async function fetchProducts(
 		}`;
 		console.log("Fetching products from:", url);
 
+		// Enhanced tags for better cache control
+		const defaultTags = [
+			"products",
+			"categories",
+			"all-products",
+			"filtered-products",
+		];
+
+		// Add specific tags based on request type
+		if (params.id) {
+			defaultTags.push(`product-id-${params.id}`, "product-by-id");
+		}
+		if (params.slug) {
+			defaultTags.push(
+				`product-${params.slug}`,
+				"product-by-slug",
+				"product-detail"
+			);
+		}
+		if (params.search || params.q) {
+			defaultTags.push("search-products");
+		}
+		if (params.kategori) {
+			defaultTags.push(`category-${params.kategori}`);
+		}
+
 		const response = await fetch(url, {
 			next: {
-				tags: nextTags ?? [
-					"products",
-					"categories",
-					"all-products",
-					"filtered-products",
-					"product-by-id",
-					"product-by-slug",
-					"search-products",
-				],
+				tags: nextTags ?? defaultTags,
 			},
 		});
 
@@ -539,6 +557,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 		const response = await fetchProducts({ slug }, [
 			`product-${slug}`,
 			"product-by-slug",
+			"product-detail",
 		]);
 
 		if (response.data.products && response.data.products.length > 0) {
@@ -549,6 +568,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 		const pathResponse = await fetchProducts({ path: slug }, [
 			`product-${slug}`,
 			"product-by-slug",
+			"product-detail",
 		]);
 
 		if (pathResponse.data.products && pathResponse.data.products.length > 0) {
@@ -566,7 +586,9 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 export async function getProductCategories(): Promise<string[]> {
 	try {
 		console.log("Fetching products to extract categories...");
-		const productsResponse = await fetchProducts({ limit: 100 });
+		const productsResponse = await fetchProducts({ limit: 100 }, [
+			"categories",
+		]);
 		const products = productsResponse.data.products;
 
 		if (Array.isArray(products) && products.length > 0) {
