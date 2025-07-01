@@ -7,9 +7,7 @@ import Link from "next/link";
 import { formatRupiah } from "@/lib/utils";
 import ProductCard from "@/components/product-card";
 
-// ✅ Static generation with on-demand revalidation
-export const dynamic = "force-static";
-export const revalidate = false; // On-demand only
+export const revalidate = 3600;
 
 interface ProductPageProps {
 	params: {
