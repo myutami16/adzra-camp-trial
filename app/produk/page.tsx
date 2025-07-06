@@ -12,8 +12,7 @@ import Link from "next/link";
 import ProductBanner from "@/components/Product-Banner";
 
 // ✅ Enable static generation with cache
-export const dynamic = "force-static";
-export const revalidate = false; // On-demand only
+export const revalidate = 1800;
 
 export const metadata = {
 	title: "Produk - Adzra Camp",

@@ -4,7 +4,7 @@ import BlogsLoading from "@/components/blogs-loading";
 import BlogCategories from "@/components/blog-categories";
 
 // ISR: Revalidate every 300 seconds (5 minutes)
-// export const revalidate = 300;
+export const revalidate = 300;
 
 export const metadata = {
 	title: "Blog - Adzra Camp",

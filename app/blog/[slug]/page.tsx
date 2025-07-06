@@ -7,7 +7,7 @@ import BlogCard from "@/components/blog-card";
 import FallbackImage from "@/components/fallback-image";
 
 // ISR: Revalidate every 300 seconds (5 minutes)
-// export const revalidate = 300;
+export const revalidate = 300;
 
 interface BlogPostPageProps {
 	params: {
