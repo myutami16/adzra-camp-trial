@@ -96,7 +96,8 @@ export async function fetchProducts(
 		path?: string;
 		isForSale?: string;
 		isForRent?: string;
-	} = {}
+	} = {},
+	nextTags?: string[]
 ): Promise<{ data: { products: Product[]; pagination: any } }> {
 	try {
 		const queryParams = new URLSearchParams();
@@ -122,8 +123,36 @@ export async function fetchProducts(
 		}`;
 		console.log("Fetching products from:", url);
 
+		// Enhanced tags for better cache control
+		const defaultTags = [
+			"products",
+			"categories",
+			"all-products",
+			"filtered-products",
+		];
+
+		// Add specific tags based on request type
+		if (params.id) {
+			defaultTags.push(`product-id-${params.id}`, "product-by-id");
+		}
+		if (params.slug) {
+			defaultTags.push(
+				`product-${params.slug}`,
+				"product-by-slug",
+				"product-detail"
+			);
+		}
+		if (params.search || params.q) {
+			defaultTags.push("search-products");
+		}
+		if (params.kategori) {
+			defaultTags.push(`category-${params.kategori}`);
+		}
+
 		const response = await fetch(url, {
-			next: { revalidate: 60 },
+			next: {
+				tags: nextTags ?? defaultTags,
+			},
 		});
 
 		if (!response.ok) {
@@ -525,19 +554,22 @@ export async function searchProducts(query: string): Promise<ProductsResponse> {
 export async function getProductBySlug(slug: string): Promise<Product | null> {
 	try {
 		console.log(`Fetching product with slug: ${slug}`);
-		const response = await fetchProducts({ slug });
-		console.log(`Product response for slug ${slug}:`, response);
+		const response = await fetchProducts({ slug }, [
+			`product-${slug}`,
+			"product-by-slug",
+			"product-detail",
+		]);
 
 		if (response.data.products && response.data.products.length > 0) {
 			return response.data.products[0];
 		}
 
-		// If no product found with the slug, try fetching with path parameter
-		console.log(
-			"No product found with slug parameter, trying with path parameter"
-		);
-		const pathResponse = await fetchProducts({ path: slug });
-		console.log(`Product response for path ${slug}:`, pathResponse);
+		console.log("No product found with slug parameter, trying with path");
+		const pathResponse = await fetchProducts({ path: slug }, [
+			`product-${slug}`,
+			"product-by-slug",
+			"product-detail",
+		]);
 
 		if (pathResponse.data.products && pathResponse.data.products.length > 0) {
 			return pathResponse.data.products[0];
@@ -554,7 +586,9 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 export async function getProductCategories(): Promise<string[]> {
 	try {
 		console.log("Fetching products to extract categories...");
-		const productsResponse = await fetchProducts({ limit: 100 });
+		const productsResponse = await fetchProducts({ limit: 100 }, [
+			"categories",
+		]);
 		const products = productsResponse.data.products;
 
 		if (Array.isArray(products) && products.length > 0) {

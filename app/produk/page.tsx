@@ -1,3 +1,4 @@
+// app/produk/page.tsx (Updated with cache control)
 import "@/lib/symbol-polyfill";
 import { Suspense } from "react";
 import { getProductCategories } from "@/lib/api";
@@ -10,8 +11,8 @@ import { ShoppingBag, Tent } from "lucide-react";
 import Link from "next/link";
 import ProductBanner from "@/components/Product-Banner";
 
-// ISR Configuration
-export const revalidate = 60; // Revalidate every 60 seconds
+// ISR: Revalidate every 300 seconds (5 minutes)
+export const revalidate = 300;
 
 export const metadata = {
 	title: "Produk - Adzra Camp",
