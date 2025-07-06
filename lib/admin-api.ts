@@ -6,7 +6,7 @@ import {
 
 const API_BASE_URL =
 	process.env.NEXT_PUBLIC_API_BASE_URL ||
-	"https://adzra-camp-store.vercel.app/api";
+	"https://camp-store.vercel.app/api";
 
 // Helper function for authenticated API requests
 const fetchWithAuth = async (endpoint: string, options: RequestInit = {}) => {
