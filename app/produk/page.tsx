@@ -11,8 +11,8 @@ import { ShoppingBag, Tent } from "lucide-react";
 import Link from "next/link";
 import ProductBanner from "@/components/Product-Banner";
 
-// ✅ Enable static generation with cache
-export const revalidate = 1800;
+// ISR: Revalidate every 300 seconds (5 minutes)
+export const revalidate = 300;
 
 export const metadata = {
 	title: "Produk - Adzra Camp",

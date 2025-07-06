@@ -7,8 +7,9 @@ import Link from "next/link";
 import { formatRupiah } from "@/lib/utils";
 import ProductCard from "@/components/product-card";
 
-// ✅ Static generation with on-demand revalidation
-export const revalidate = 1800;
+// ISR: Revalidate every 300 seconds (5 minutes)
+export const revalidate = 300;
+
 interface ProductPageProps {
 	params: {
 		slug: string;
