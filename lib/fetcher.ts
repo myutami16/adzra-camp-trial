@@ -2,7 +2,7 @@ import { getToken } from "./auth";
 
 const API_BASE_URL =
 	process.env.NEXT_PUBLIC_API_BASE_URL ||
-	"https://adzra-camp-store.vercel.app/api";
+	"https://camp-store.vercel.app/api";
 
 export const fetcher = async (url: string) => {
 	const token = getToken();

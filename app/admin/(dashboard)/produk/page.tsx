@@ -30,6 +30,8 @@ import {
 	Trash2,
 	Search,
 	RefreshCw,
+	ChevronLeft,
+	ChevronRight,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatRupiah, formatDate } from "@/lib/utils";
@@ -50,6 +52,13 @@ interface Product {
 	cloudinary_id?: string;
 	createdAt: string;
 	slug: string;
+}
+
+interface Pagination {
+	currentPage: number;
+	totalPages: number;
+	totalItems: number;
+	itemsPerPage: number;
 }
 
 // Mock data for development mode
@@ -86,10 +95,18 @@ const MOCK_PRODUCTS: Product[] = [
 	},
 ];
 
+const ITEMS_PER_PAGE = 10; // Fixed constant for items per page
+
 export default function AdminProductsPage() {
 	const router = useRouter();
 	const { toast } = useToast();
 	const [products, setProducts] = useState<Product[]>([]);
+	const [pagination, setPagination] = useState<Pagination>({
+		currentPage: 1,
+		totalPages: 1,
+		totalItems: 0,
+		itemsPerPage: ITEMS_PER_PAGE,
+	});
 	const [isLoading, setIsLoading] = useState(true);
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -100,16 +117,21 @@ export default function AdminProductsPage() {
 
 	useEffect(() => {
 		fetchProductData();
-	}, []);
+	}, [pagination.currentPage, searchQuery]); // Added searchQuery to dependencies
 
-	const fetchProductData = async () => {
+	const fetchProductData = async (page = pagination.currentPage) => {
 		setIsLoading(true);
 		setError(null);
 		setUseMockData(false);
 
 		try {
-			console.log("Fetching products for admin panel...");
-			const result = await fetchAdminProducts();
+			console.log(`Fetching products for admin panel, page: ${page}...`);
+			const params = {
+				page: page.toString(),
+				limit: ITEMS_PER_PAGE.toString(), // Use fixed constant
+				...(searchQuery && { search: searchQuery }), // Add search parameter if query exists
+			};
+			const result = await fetchAdminProducts(params);
 			console.log("Admin products data:", result);
 
 			// Check if the data is correctly structured
@@ -131,19 +153,48 @@ export default function AdminProductsPage() {
 				}));
 
 				setProducts(formattedProducts);
+				
+				// Update pagination with fixed itemsPerPage
+				if (result.pagination) {
+					setPagination({
+						...result.pagination,
+						itemsPerPage: ITEMS_PER_PAGE, // Always use fixed constant
+					});
+				}
 			} else {
 				console.warn("Unexpected products data format:", result);
 
 				// In development mode, use mock data
 				if (process.env.NODE_ENV === "development") {
 					console.log("Using mock data in development mode");
-					setProducts(MOCK_PRODUCTS);
+					
+					// Filter mock data based on search query
+					const filteredMockProducts = searchQuery
+						? MOCK_PRODUCTS.filter(product =>
+								product.namaProduk.toLowerCase().includes(searchQuery.toLowerCase()) ||
+								product.kategori.toLowerCase().includes(searchQuery.toLowerCase())
+						  )
+						: MOCK_PRODUCTS;
+					
+					setProducts(filteredMockProducts);
+					setPagination({
+						currentPage: 1,
+						totalPages: 1,
+						totalItems: filteredMockProducts.length,
+						itemsPerPage: ITEMS_PER_PAGE,
+					});
 					setUseMockData(true);
 					setError(
 						"Menggunakan data contoh karena API tidak tersedia. Ini hanya untuk mode pengembangan."
 					);
 				} else {
 					setProducts([]);
+					setPagination({
+						currentPage: 1,
+						totalPages: 1,
+						totalItems: 0,
+						itemsPerPage: ITEMS_PER_PAGE,
+					});
 					setError("Data produk tidak dalam format yang diharapkan");
 				}
 			}
@@ -153,13 +204,34 @@ export default function AdminProductsPage() {
 			// In development mode, use mock data
 			if (process.env.NODE_ENV === "development") {
 				console.log("Using mock data in development mode due to error");
-				setProducts(MOCK_PRODUCTS);
+				
+				// Filter mock data based on search query
+				const filteredMockProducts = searchQuery
+					? MOCK_PRODUCTS.filter(product =>
+							product.namaProduk.toLowerCase().includes(searchQuery.toLowerCase()) ||
+							product.kategori.toLowerCase().includes(searchQuery.toLowerCase())
+					  )
+					: MOCK_PRODUCTS;
+				
+				setProducts(filteredMockProducts);
+				setPagination({
+					currentPage: 1,
+					totalPages: 1,
+					totalItems: filteredMockProducts.length,
+					itemsPerPage: ITEMS_PER_PAGE,
+				});
 				setUseMockData(true);
 				setError(
 					"Gagal memuat data produk. Menggunakan data contoh untuk mode pengembangan."
 				);
 			} else {
 				setProducts([]);
+				setPagination({
+					currentPage: 1,
+					totalPages: 1,
+					totalItems: 0,
+					itemsPerPage: ITEMS_PER_PAGE,
+				});
 				setError("Gagal memuat data produk. Silakan coba lagi.");
 				toast({
 					title: "Error",
@@ -243,11 +315,17 @@ export default function AdminProductsPage() {
 		}
 	};
 
-	const filteredProducts = products.filter(
-		(product) =>
-			product.namaProduk?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			product.kategori?.toLowerCase().includes(searchQuery.toLowerCase())
-	);
+	const handlePageChange = (newPage: number) => {
+		if (newPage >= 1 && newPage <= pagination.totalPages) {
+			setPagination(prev => ({ ...prev, currentPage: newPage }));
+		}
+	};
+
+	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setSearchQuery(e.target.value);
+		// Reset to first page when searching
+		setPagination(prev => ({ ...prev, currentPage: 1 }));
+	};
 
 	return (
 		<div className="space-y-6">
@@ -294,7 +372,7 @@ export default function AdminProductsPage() {
 					<Input
 						placeholder="Cari produk..."
 						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
+						onChange={handleSearchChange}
 						className="pl-10"
 					/>
 				</div>
@@ -305,7 +383,7 @@ export default function AdminProductsPage() {
 					<div className="flex justify-center items-center p-8">
 						<Loader2 className="h-8 w-8 animate-spin text-primary-dark" />
 					</div>
-				) : filteredProducts.length === 0 ? (
+				) : products.length === 0 ? (
 					<div className="text-center p-8 text-gray-500">
 						{searchQuery
 							? "Tidak ada produk yang sesuai dengan pencarian"
@@ -324,7 +402,7 @@ export default function AdminProductsPage() {
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{filteredProducts.map((product) => (
+							{products.map((product) => (
 								<TableRow key={product._id}>
 									<TableCell className="font-medium">
 										{product.namaProduk}
@@ -382,6 +460,60 @@ export default function AdminProductsPage() {
 					</Table>
 				)}
 			</div>
+
+			{/* Pagination Controls */}
+			{pagination.totalPages > 1 && (
+				<div className="flex items-center justify-between px-4 py-3 border-t">
+					<div className="flex items-center text-sm text-gray-500">
+						Menampilkan {Math.min((pagination.currentPage - 1) * pagination.itemsPerPage + 1, pagination.totalItems)} hingga{" "}
+						{Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems)} dari{" "}
+						{pagination.totalItems} produk
+					</div>
+					<div className="flex items-center gap-2">
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => handlePageChange(pagination.currentPage - 1)}
+							disabled={pagination.currentPage === 1}>
+							<ChevronLeft className="h-4 w-4" />
+							Sebelumnya
+						</Button>
+						<div className="flex items-center gap-1">
+							{Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+								.filter((page) => {
+									const current = pagination.currentPage;
+									return (
+										page === 1 ||
+										page === pagination.totalPages ||
+										(page >= current - 1 && page <= current + 1)
+									);
+								})
+								.map((page, index, array) => (
+									<div key={page} className="flex items-center">
+										{index > 0 && array[index - 1] !== page - 1 && (
+											<span className="px-2 text-gray-500">...</span>
+										)}
+										<Button
+											variant={pagination.currentPage === page ? "default" : "outline"}
+											size="sm"
+											onClick={() => handlePageChange(page)}
+											className="min-w-[2rem]">
+											{page}
+										</Button>
+									</div>
+								))}
+						</div>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => handlePageChange(pagination.currentPage + 1)}
+							disabled={pagination.currentPage === pagination.totalPages}>
+							Selanjutnya
+							<ChevronRight className="h-4 w-4" />
+						</Button>
+					</div>
+				</div>
+			)}
 
 			<DeleteProductDialog
 				open={deleteDialogOpen}
