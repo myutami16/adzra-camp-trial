@@ -95,6 +95,8 @@ const MOCK_PRODUCTS: Product[] = [
 	},
 ];
 
+const ITEMS_PER_PAGE = 10; // Fixed constant for items per page
+
 export default function AdminProductsPage() {
 	const router = useRouter();
 	const { toast } = useToast();
@@ -103,7 +105,7 @@ export default function AdminProductsPage() {
 		currentPage: 1,
 		totalPages: 1,
 		totalItems: 0,
-		itemsPerPage: 10,
+		itemsPerPage: ITEMS_PER_PAGE,
 	});
 	const [isLoading, setIsLoading] = useState(true);
 	const [isRefreshing, setIsRefreshing] = useState(false);
@@ -115,7 +117,7 @@ export default function AdminProductsPage() {
 
 	useEffect(() => {
 		fetchProductData();
-	}, [pagination.currentPage]);
+	}, [pagination.currentPage, searchQuery]); // Added searchQuery to dependencies
 
 	const fetchProductData = async (page = pagination.currentPage) => {
 		setIsLoading(true);
@@ -126,7 +128,8 @@ export default function AdminProductsPage() {
 			console.log(`Fetching products for admin panel, page: ${page}...`);
 			const params = {
 				page: page.toString(),
-				limit: pagination.itemsPerPage.toString(),
+				limit: ITEMS_PER_PAGE.toString(), // Use fixed constant
+				...(searchQuery && { search: searchQuery }), // Add search parameter if query exists
 			};
 			const result = await fetchAdminProducts(params);
 			console.log("Admin products data:", result);
@@ -151,9 +154,12 @@ export default function AdminProductsPage() {
 
 				setProducts(formattedProducts);
 				
-				// Update pagination
+				// Update pagination with fixed itemsPerPage
 				if (result.pagination) {
-					setPagination(result.pagination);
+					setPagination({
+						...result.pagination,
+						itemsPerPage: ITEMS_PER_PAGE, // Always use fixed constant
+					});
 				}
 			} else {
 				console.warn("Unexpected products data format:", result);
@@ -161,12 +167,21 @@ export default function AdminProductsPage() {
 				// In development mode, use mock data
 				if (process.env.NODE_ENV === "development") {
 					console.log("Using mock data in development mode");
-					setProducts(MOCK_PRODUCTS);
+					
+					// Filter mock data based on search query
+					const filteredMockProducts = searchQuery
+						? MOCK_PRODUCTS.filter(product =>
+								product.namaProduk.toLowerCase().includes(searchQuery.toLowerCase()) ||
+								product.kategori.toLowerCase().includes(searchQuery.toLowerCase())
+						  )
+						: MOCK_PRODUCTS;
+					
+					setProducts(filteredMockProducts);
 					setPagination({
 						currentPage: 1,
 						totalPages: 1,
-						totalItems: MOCK_PRODUCTS.length,
-						itemsPerPage: 10,
+						totalItems: filteredMockProducts.length,
+						itemsPerPage: ITEMS_PER_PAGE,
 					});
 					setUseMockData(true);
 					setError(
@@ -178,7 +193,7 @@ export default function AdminProductsPage() {
 						currentPage: 1,
 						totalPages: 1,
 						totalItems: 0,
-						itemsPerPage: 10,
+						itemsPerPage: ITEMS_PER_PAGE,
 					});
 					setError("Data produk tidak dalam format yang diharapkan");
 				}
@@ -189,12 +204,21 @@ export default function AdminProductsPage() {
 			// In development mode, use mock data
 			if (process.env.NODE_ENV === "development") {
 				console.log("Using mock data in development mode due to error");
-				setProducts(MOCK_PRODUCTS);
+				
+				// Filter mock data based on search query
+				const filteredMockProducts = searchQuery
+					? MOCK_PRODUCTS.filter(product =>
+							product.namaProduk.toLowerCase().includes(searchQuery.toLowerCase()) ||
+							product.kategori.toLowerCase().includes(searchQuery.toLowerCase())
+					  )
+					: MOCK_PRODUCTS;
+				
+				setProducts(filteredMockProducts);
 				setPagination({
 					currentPage: 1,
 					totalPages: 1,
-					totalItems: MOCK_PRODUCTS.length,
-					itemsPerPage: 10,
+					totalItems: filteredMockProducts.length,
+					itemsPerPage: ITEMS_PER_PAGE,
 				});
 				setUseMockData(true);
 				setError(
@@ -206,7 +230,7 @@ export default function AdminProductsPage() {
 					currentPage: 1,
 					totalPages: 1,
 					totalItems: 0,
-					itemsPerPage: 10,
+					itemsPerPage: ITEMS_PER_PAGE,
 				});
 				setError("Gagal memuat data produk. Silakan coba lagi.");
 				toast({
@@ -297,11 +321,11 @@ export default function AdminProductsPage() {
 		}
 	};
 
-	const filteredProducts = products.filter(
-		(product) =>
-			product.namaProduk?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			product.kategori?.toLowerCase().includes(searchQuery.toLowerCase())
-	);
+	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setSearchQuery(e.target.value);
+		// Reset to first page when searching
+		setPagination(prev => ({ ...prev, currentPage: 1 }));
+	};
 
 	return (
 		<div className="space-y-6">
@@ -348,7 +372,7 @@ export default function AdminProductsPage() {
 					<Input
 						placeholder="Cari produk..."
 						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
+						onChange={handleSearchChange}
 						className="pl-10"
 					/>
 				</div>
@@ -359,7 +383,7 @@ export default function AdminProductsPage() {
 					<div className="flex justify-center items-center p-8">
 						<Loader2 className="h-8 w-8 animate-spin text-primary-dark" />
 					</div>
-				) : filteredProducts.length === 0 ? (
+				) : products.length === 0 ? (
 					<div className="text-center p-8 text-gray-500">
 						{searchQuery
 							? "Tidak ada produk yang sesuai dengan pencarian"
@@ -378,7 +402,7 @@ export default function AdminProductsPage() {
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{filteredProducts.map((product) => (
+							{products.map((product) => (
 								<TableRow key={product._id}>
 									<TableCell className="font-medium">
 										{product.namaProduk}
